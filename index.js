@@ -13,11 +13,6 @@ app.get('/', function(req, res) {
     res.sendFile(__dirname + '/index.html');
 });
 
-// Страница для мобильного доступа с QR-кодом
-app.get('/mobile', function(req, res) {
-    res.sendFile(__dirname + '/mobile-access.html');
-});
-
 // Обработка подключений Socket.IO
 io.on('connection', (socket) => {
     console.log('Новый пользователь подключился:', socket.id);
