@@ -11,8 +11,13 @@ app.use(express.static('public'));
 
 app.get('/', function(req, res) {
     res.sendFile(__dirname + '/index.html');
- });
- 
+});
+
+// Страница для мобильного доступа с QR-кодом
+app.get('/mobile', function(req, res) {
+    res.sendFile(__dirname + '/mobile-access.html');
+});
+
 // Обработка подключений Socket.IO
 io.on('connection', (socket) => {
     console.log('Новый пользователь подключился:', socket.id);
@@ -54,6 +59,6 @@ io.on('connection', (socket) => {
 });
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-    console.log(`Сервер запущен на порту ${PORT}`);
+server.listen(PORT, '192.168.1.100', () => {
+    console.log(` Сервер  запущен ${PORT}`);
 });

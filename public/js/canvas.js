@@ -1,3 +1,5 @@
+// Глобальные переменные для инструментов
+let toolPencil, toolEraser, currentTool, currentColorLMB, currentColorRMB, currentPath, pencilSize;
 
 // Подключение к Socket.IO
 const socket = io();
@@ -140,10 +142,6 @@ function initializeCanvas() {
 
 }
 
-// Глобальные переменные для инструментов
-let toolPencil, toolEraser, currentTool, 
-currentColorLMB, currentColorRMB, currentPath,
-pencilSize;
 
 // Функции переключения инструментов (глобальные)
 function setTool(toolName) {
