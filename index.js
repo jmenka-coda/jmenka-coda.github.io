@@ -9,6 +9,10 @@ const io = socketIo(server);
 // Обслуживание статических файлов
 app.use(express.static('public'));
 
+app.get('/', function(req, res) {
+    res.sendFile(__dirname + '/index.html');
+ });
+ 
 // Обработка подключений Socket.IO
 io.on('connection', (socket) => {
     console.log('Новый пользователь подключился:', socket.id);
