@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Paper.js Рисовалка</title>
+    <link rel="stylesheet" href="public/css/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://unpkg.com/paper@0.12.17/dist/paper-full.min.js"></script>
+</head>
+
+<body>
+    <script src="canvas.js" defer></script>
+
+    <div class="canvas-container">
+        <div class="toolBox">
+            <div class="selectColor">
+                <!-- Для ЛКМ -->
+                <input type="color" id="colorPickerLMB" class="color-picker-lmb" onchange="changeColorL(this.value)"
+                    value="#000000">
+                <!-- Для ПКМ -->
+                <input type="color" id="colorPickerRMB" class="color-picker-rmb" onchange="changeColorR(this.value)"
+                    value="#ffffff">
+            </div>
+            <div class="tools">
+                <button type="button" class="icon-btn activ" onclick="setTool('pencil')" title="Карандаш">
+                    <i class="fas fa-pencil-alt"></i>
+                </button>
+                <button type="button" class="icon-btn" onclick="setTool('eraser')" title="Ластик">
+                    <i class="fas fa-eraser"></i>
+                </button>
+                <button type="button" onclick="clearCanvas()">Очистить</button>
+            </div>
+            <div class="tool-control">
+                <label for="pencilSize">Размер кисти:</label>
+                <input type="range" id="pencilSize" min="1" max="30" value="3" oninput="changePencilSize(this.value)">
+                <span id="sizeValue">3px</span>
+            </div>
+        </div>
+
+        <canvas id="myCanvas"></canvas>
+    </div>
+
+</body>
+
+</html>

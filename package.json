@@ -1,0 +1,14 @@
+{
+  "name": "lesson",
+  "version": "0.0.1",
+  "description": "opisanie",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "Gleb",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
