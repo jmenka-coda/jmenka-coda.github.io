@@ -15,6 +15,10 @@ function initializeCanvas() {
     const canvas = document.getElementById('myCanvas');
     const container = canvas.closest('.canvas-container');
     
+    const ctx = canvas.getContext('2d');
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+
     if (!canvas) {
         console.error('Canvas элемент не найден!');
         return;
