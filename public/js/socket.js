@@ -1,7 +1,7 @@
 // === ФУНКЦИИ ДЛЯ SOCKET.IO ===
 
 // Подключение к Socket.IO
-const socket = io();
+window.socket = io();
 
 function initializeSocketEvents() {
     // Обработка события начала рисования от других пользователей
@@ -60,9 +60,3 @@ function sendDrawingData(type, point) {
     
     socket.emit(type, data);
 }
-
-
-module.exports = {
-    initializeSocketEvents,
-    sendDrawingData
-};

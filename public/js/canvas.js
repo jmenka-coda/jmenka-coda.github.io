@@ -1,4 +1,3 @@
-const socket = require('./socket');
 
 // Глобальные переменные для инструментов
 let toolPencil, toolEraser, currentTool, currentColorLMB, currentColorRMB, currentPath, pencilSize;
@@ -9,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Проверяем, что Paper.js загружен
     if (typeof paper !== 'undefined') {
         initializeCanvas();
-        socket.initializeSocketEvents();
+        initializeSocketEvents();
     } else {
         console.error('Paper.js не загружен');
     }
@@ -106,7 +105,7 @@ function initializeCanvas() {
         currentPath.add(event.point);
         
         // Отправляем данные на сервер
-        socket.sendDrawingData('draw start', event.point);
+        sendDrawingData('draw start', event.point);
     }
 
     toolPencil.onMouseDrag = function (event) {
@@ -115,7 +114,7 @@ function initializeCanvas() {
             currentPath.add(event.point);
             
             // Отправляем данные на сервер
-            socket.sendDrawingData('draw continue', event.point);
+            sendDrawingData('draw continue', event.point);
         }
     }
 
@@ -178,7 +177,7 @@ function changeColorR(color) {
 }
 
 function clearCanvas() {
-    paper.project.activeLayer.removeChildren();
+    paper.project.activeLayer.removeCShildren();
     
     // Отправляем событие очистки на сервер
     socket.emit('clear canvas');
