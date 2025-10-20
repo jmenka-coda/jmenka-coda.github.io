@@ -24,7 +24,8 @@ io.on('connection', (socket) => {
         io.emit('chat message', msg);
     });
 
-    // === НОВЫЕ СОБЫТИЯ ДЛЯ РИСОВАНИЯ ===
+
+
     
     // Обработка начала рисования
     socket.on('draw start', (data) => {
@@ -54,6 +55,6 @@ io.on('connection', (socket) => {
 });
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, '192.168.1.100', () => {
+server.listen(PORT, 'localhost', () => {
     console.log(` Сервер  запущен ${PORT}`);
 });

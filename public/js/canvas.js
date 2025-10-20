@@ -1,8 +1,7 @@
+const socket = require('./socket');
+
 // Глобальные переменные для инструментов
 let toolPencil, toolEraser, currentTool, currentColorLMB, currentColorRMB, currentPath, pencilSize;
-
-// Подключение к Socket.IO
-const socket = io();
 
 // Ждем загрузки DOM и Paper.js
 document.addEventListener('DOMContentLoaded', function () {
@@ -10,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Проверяем, что Paper.js загружен
     if (typeof paper !== 'undefined') {
         initializeCanvas();
-        initializeSocketEvents();
+        socket.initializeSocketEvents();
     } else {
         console.error('Paper.js не загружен');
     }
@@ -107,7 +106,7 @@ function initializeCanvas() {
         currentPath.add(event.point);
         
         // Отправляем данные на сервер
-        sendDrawingData('draw start', event.point);
+        socket.sendDrawingData('draw start', event.point);
     }
 
     toolPencil.onMouseDrag = function (event) {
@@ -116,7 +115,7 @@ function initializeCanvas() {
             currentPath.add(event.point);
             
             // Отправляем данные на сервер
-            sendDrawingData('draw continue', event.point);
+            socket.sendDrawingData('draw continue', event.point);
         }
     }
 
@@ -189,64 +188,4 @@ function changePencilSize(size) {
     pencilSize = parseInt(size);
     document.getElementById('sizeValue').textContent = size + 'px';
     console.log('Размер кисти изменен на:', pencilSize);
-}
-
-// === ФУНКЦИИ ДЛЯ SOCKET.IO ===
-
-function initializeSocketEvents() {
-    // Обработка события начала рисования от других пользователей
-    socket.on('draw start', (data) => {
-        console.log('Получено событие draw start:', data);
-        // Создаем путь от другого пользователя
-        const path = new paper.Path();
-        path.strokeColor = data.color;
-        path.strokeWidth = data.size;
-        path.strokeCap = 'round';
-        path.add(new paper.Point(data.x, data.y));
-        
-        // Помечаем, что это путь от другого пользователя
-        path.data.isRemote = true;
-    });
-
-    // Обработка события продолжения рисования от других пользователей
-    socket.on('draw continue', (data) => {
-        console.log('Получено событие draw continue:', data);
-        // Находим последний путь от этого пользователя
-        const paths = paper.project.activeLayer.children;
-        for (let i = paths.length - 1; i >= 0; i--) {
-            if (paths[i].data.isRemote) {
-                paths[i].add(new paper.Point(data.x, data.y));
-                break;
-            }
-        }
-    });
-
-    // Обработка события очистки canvas от других пользователей
-    socket.on('clear canvas', () => {
-        console.log('Получено событие clear canvas');
-        paper.project.activeLayer.removeChildren();
-    });
-
-    // Обработка подключения
-    socket.on('connect', () => {
-        console.log('Подключен к серверу');
-    });
-
-    // Обработка отключения
-    socket.on('disconnect', () => {
-        console.log('Отключен от сервера');
-    });
-}
-
-// Функция для отправки данных рисования на сервер
-function sendDrawingData(type, point) {
-    const data = {
-        x: point.x,
-        y: point.y,
-        color: currentPath ? currentPath.strokeColor.toCSS() : currentColorLMB,
-        size: pencilSize,
-        tool: currentTool
-    };
-    
-    socket.emit(type, data);
 }
