@@ -16,29 +16,25 @@ app.get('/', function(req, res) {
 // Обработка подключений Socket.IO
 io.on('connection', (socket) => {
     console.log('Новый пользователь подключился:', socket.id);
-
-    // Обработка сообщений от клиента
-    socket.on('chat message', (msg) => {
-        console.log('Сообщение:', msg);
-        // Отправляем сообщение всем подключенным клиентам
-        io.emit('chat message', msg);
-    });
-
-
-
-    
+ 
     // Обработка начала рисования
     socket.on('draw start', (data) => {
         console.log('Начало рисования от', socket.id, data);
         // Отправляем всем остальным пользователям
-        socket.broadcast.emit('draw start', data);
+        socket.broadcast.emit('draw start', { data, userId: socket.id});
     });
 
     // Обработка продолжения рисования
     socket.on('draw continue', (data) => {
         console.log('Продолжение рисования от', socket.id);
         // Отправляем всем остальным пользователям
-        socket.broadcast.emit('draw continue', data);
+        socket.broadcast.emit('draw continue', { data, userId: socket.id});
+    });
+
+    socket.on('draw end', (data) => {
+        console.log('Продолжение рисования от', socket.id);
+        // Отправляем всем остальным пользователям
+        socket.broadcast.emit('draw end', { data, userId: socket.id});
     });
 
     // Обработка очистки canvas

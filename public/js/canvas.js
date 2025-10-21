@@ -1,6 +1,7 @@
 
 // Глобальные переменные для инструментов
 let toolPencil, toolEraser, currentTool, currentColorLMB, currentColorRMB, currentPath, pencilSize;
+let currentStrokeId = null;
 
 // Ждем загрузки DOM и Paper.js
 document.addEventListener('DOMContentLoaded', function () {
@@ -18,7 +19,7 @@ function initializeCanvas() {
     // Получаем элемент canvas
     const canvas = document.getElementById('myCanvas');
     const container = canvas.closest('.canvas-container');
-    
+
     const ctx = canvas.getContext('2d');
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
@@ -27,12 +28,12 @@ function initializeCanvas() {
         console.error('Canvas элемент не найден!');
         return;
     }
-    
+
     if (!container) {
         console.error('Canvas контейнер не найден!');
         return;
     }
-    
+
     console.log('Canvas найден:', canvas);
     console.log('Контейнер найден:', container);
 
@@ -51,21 +52,21 @@ function initializeCanvas() {
         // Активируем карандаш по умолчанию
         setTool('pencil');
     }
-    
+
     // Устанавливаем размер при загрузке
     resizeCanvas();
 
     // Обновляем размер при изменении размера окна
     window.addEventListener('resize', resizeCanvas);
-    
+
     // Отключаем контекстное меню на canvas для корректной работы ПКМ
-    canvas.addEventListener('contextmenu', function(e) {
+    canvas.addEventListener('contextmenu', function (e) {
         e.preventDefault();
     });
 
     // Инициализируем глобальные переменные
     currentTool = 'pencil';
-    
+
     currentColorLMB = document.getElementById('colorPickerLMB').value;
     currentColorRMB = document.getElementById('colorPickerRMB').value;
     currentPath = null;
@@ -73,7 +74,7 @@ function initializeCanvas() {
     // Инструменты для рисования
     toolPencil = new paper.Tool();
     toolEraser = new paper.Tool();
-    
+
     setTool('pencil');
     changePencilSize(document.getElementById('pencilSize').value);
     // Карандаш
@@ -81,14 +82,14 @@ function initializeCanvas() {
         console.log('Mouse down на canvas, button:', event.button);
         // Создаем новый путь
         currentPath = new paper.Path();
-        
+
         const nativeEvent = event.event;
 
-        if(nativeEvent.button == 0) {
+        if (nativeEvent.button == 0) {
             // ЛКМ
             currentPath.strokeColor = currentColorLMB;
             console.log('ЛКМ - цвет:', currentColorLMB);
-        } else if(nativeEvent.button == 2) {
+        } else if (nativeEvent.button == 2) {
             //ПКМ
             currentPath.strokeColor = currentColorRMB;
             console.log('ПКМ - цвет:', currentColorRMB);
@@ -97,24 +98,25 @@ function initializeCanvas() {
             currentPath.strokeColor = currentColorLMB; // по умолчанию
             console.log('Другая кнопка, используется ЛКМ цвет', event);
         }
-        
+
         currentPath.strokeWidth = pencilSize;
         currentPath.strokeCap = 'round';
 
         // Добавляем первую точку
         currentPath.add(event.point);
-        
+
         // Отправляем данные на сервер
-        sendDrawingData('draw start', event.point);
+        currentStrokeId = (crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`);
+        sendDrawingData('draw start', event.point, currentStrokeId);
     }
 
     toolPencil.onMouseDrag = function (event) {
         // Продолжаем путь
         if (currentPath) {
             currentPath.add(event.point);
-            
+
             // Отправляем данные на сервер
-            sendDrawingData('draw continue', event.point);
+            sendDrawingData('draw continue', event.point, currentStrokeId);
         }
     }
 
@@ -123,6 +125,8 @@ function initializeCanvas() {
         // if (currentPath) {
         //     currentPath.smooth();
         // }
+        socket.emit('draw end', { strokeId: currentStrokeId });
+        currentStrokeId = null;
     }
 
     // Ластик
@@ -178,7 +182,7 @@ function changeColorR(color) {
 
 function clearCanvas() {
     paper.project.activeLayer.removeCShildren();
-    
+
     // Отправляем событие очистки на сервер
     socket.emit('clear canvas');
 }

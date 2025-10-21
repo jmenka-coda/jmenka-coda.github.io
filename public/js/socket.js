@@ -2,32 +2,34 @@
 
 // Подключение к Socket.IO
 window.socket = io();
+const remoteStrokes = new Map(); // ключ: `${userId}:${strokeId || ''}`
 
 function initializeSocketEvents() {
     // Обработка события начала рисования от других пользователей
     socket.on('draw start', (data) => {
-        console.log('Получено событие draw start:', data);
-        // Создаем путь от другого пользователя
+        const key = `${data.userId}:${data.strokeId || ''}`;
         const path = new paper.Path();
         path.strokeColor = data.color;
         path.strokeWidth = data.size;
         path.strokeCap = 'round';
         path.add(new paper.Point(data.x, data.y));
-        
-        // Помечаем, что это путь от другого пользователя
-        path.data.isRemote = true;
+        remoteStrokes.set(key, path);
     });
 
     // Обработка события продолжения рисования от других пользователей
     socket.on('draw continue', (data) => {
+        console.log('Получено событие draw continue:', data);
+        // Находим последний путь от этого пользователя
+        /* const paths = paper.project.activeLayer.children;
+        for (let i = paths.length - 1; i >= 0; i--) {
+            if (paths[i].data.isRemote) {
+                paths[i].add(new paper.Point(data.x, data.y));
+                break;
+            }
+        }*/
         const key = `${data.userId}:${data.strokeId || ''}`;
         const path = remoteStrokes.get(key);
         if (path) path.add(new paper.Point(data.x, data.y));
-    });
-
-    socket.on('draw end', (data) => {
-        const key = `${data.userId}:${data.strokeId || ''}`;
-        remoteStrokes.delete(key);
     });
 
     // Обработка события очистки canvas от других пользователей
@@ -48,14 +50,14 @@ function initializeSocketEvents() {
 }
 
 // Функция для отправки данных рисования на сервер
-function sendDrawingData(type, point) {
+function sendDrawingData(type, point, strokeId) {
     const data = {
         x: point.x,
         y: point.y,
         color: currentPath ? currentPath.strokeColor.toCSS() : currentColorLMB,
         size: pencilSize,
-        tool: currentTool
+        tool: currentTool,
+        strokeId, // важно
     };
-    
     socket.emit(type, data);
 }
