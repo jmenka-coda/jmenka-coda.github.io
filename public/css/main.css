@@ -115,6 +115,7 @@ canvas {
 }
 
 /* Адаптивность для мобильных устройств */
+/*
 @media (max-width: 768px) {
     body {
         padding: 10px;
@@ -155,3 +156,4 @@ canvas {
         margin: 5px 0;
     }
 }
+*/

@@ -38,11 +38,10 @@ function initializeSocketEvents() {
         if (path) path.add(new paper.Point(mydata.x, mydata.y));
     });
 
-    // Обработка события очистки canvas от других пользователей
-    socket.on('clear canvas', () => {
-        console.log('Получено событие clear canvas');
-        paper.project.activeLayer.removeChildren();
-    });
+    socket.on('draw end', (data) => {
+        const key = `${data.userId}:${data.data.strokeId || ''}`;
+        remoteStrokes.delete(key);
+      });
 
     // Обработка подключения
     socket.on('connect', () => {

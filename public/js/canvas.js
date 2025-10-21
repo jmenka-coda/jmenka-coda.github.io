@@ -1,4 +1,3 @@
-
 // Глобальные переменные для инструментов
 let toolPencil, toolEraser, currentTool, currentColorLMB, currentColorRMB, currentPath, pencilSize;
 let currentStrokeId = null;
@@ -70,6 +69,8 @@ function initializeCanvas() {
     currentColorLMB = document.getElementById('colorPickerLMB').value;
     currentColorRMB = document.getElementById('colorPickerRMB').value;
     currentPath = null;
+    pencilSize = 5;
+    eraserSize = 20;
 
     // Инструменты для рисования
     toolPencil = new paper.Tool();
@@ -77,6 +78,7 @@ function initializeCanvas() {
 
     setTool('pencil');
     changePencilSize(document.getElementById('pencilSize').value);
+
     // Карандаш
     toolPencil.onMouseDown = function (event) {
         console.log('Mouse down на canvas, button:', event.button);
@@ -99,6 +101,7 @@ function initializeCanvas() {
             console.log('Другая кнопка, используется ЛКМ цвет', event);
         }
 
+        
         currentPath.strokeWidth = pencilSize;
         currentPath.strokeCap = 'round';
 
@@ -129,21 +132,41 @@ function initializeCanvas() {
         currentStrokeId = null;
     }
 
-    // Ластик
-    toolEraser.onMouseDrag = function (event) {
-        // Ищем пути под курсором и удаляем их
-        const hitResult = paper.project.hitTest(event.point, {
-            tolerance: 10,
-            stroke: true
-        });
+    // Ластик - рисует белым квадратом (или прозрачным)
+    toolEraser.onMouseDown = function (event) {
+        console.log('Ластик: Mouse down');
+        
+        // Создаем новый путь для ластика
+        currentPath = new paper.Path();
+        
+        // Ластик рисует белым цветом (или можно сделать прозрачным)
+        currentPath.strokeColor = 'white';
+        currentPath.strokeWidth = pencilSize;
+        currentPath.strokeCap = 'square'; // Квадратная форма
+        currentPath.strokeJoin = 'miter'; // Острые углы
+        
+        // Добавляем первую точку
+        currentPath.add(event.point);
 
-        if (hitResult && hitResult.item) {
-            hitResult.item.remove();
+        // Отправляем данные на сервер
+        currentStrokeId = (crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`);
+        sendDrawingData('draw start', event.point, currentStrokeId);
+    }
+    toolEraser.onMouseDrag = function (event) {
+        // Продолжаем путь ластика
+        if (currentPath) {
+            currentPath.add(event.point);
+            
+            // Отправляем данные на сервер
+            sendDrawingData('draw continue', event.point, currentStrokeId);
         }
     }
-
+    toolEraser.onMouseUp = function (event) {
+        // Завершаем стирание
+        socket.emit('draw end', { strokeId: currentStrokeId });
+        currentStrokeId = null;
+    }
 }
-
 
 // Функции переключения инструментов (глобальные)
 function setTool(toolName) {
@@ -178,13 +201,6 @@ function changeColorL(color) {
 }
 function changeColorR(color) {
     currentColorRMB = color;
-}
-
-function clearCanvas() {
-    paper.project.activeLayer.removeCShildren();
-
-    // Отправляем событие очистки на сервер
-    socket.emit('clear canvas');
 }
 
 function changePencilSize(size) {
