@@ -22,6 +22,12 @@ function initializeCanvas() {
     const ctx = canvas.getContext('2d');
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
+    // Оптимизации Paper.js
+    paper.settings.handleSize = 8; // Уменьшаем размер хэндлов
+    paper.settings.hitTolerance = 2; // Уменьшаем tolerance для hitTest
+    
+    // Отключаем ненужные функции
+    paper.settings.applyMatrix = false;
 
     if (!canvas) {
         console.error('Canvas элемент не найден!');
@@ -54,9 +60,7 @@ function initializeCanvas() {
 
     // Устанавливаем размер при загрузке
     resizeCanvas();
-
-    // Обновляем размер при изменении размера окна
-    window.addEventListener('resize', resizeCanvas);
+    //window.addEventListener('resize', resizeCanvas);
 
     // Отключаем контекстное меню на canvas для корректной работы ПКМ
     canvas.addEventListener('contextmenu', function (e) {
