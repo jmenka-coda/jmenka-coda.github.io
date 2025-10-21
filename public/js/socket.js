@@ -7,12 +7,16 @@ const remoteStrokes = new Map(); // ключ: `${userId}:${strokeId || ''}`
 function initializeSocketEvents() {
     // Обработка события начала рисования от других пользователей
     socket.on('draw start', (data) => {
-        const key = `${data.userId}:${data.strokeId || ''}`;
+        mydata = data.data;
+        console.log(data);
+        console.log(mydata);
+
+        const key = `${data.userId}:${mydata.strokeId || ''}`;
         const path = new paper.Path();
-        path.strokeColor = data.color;
-        path.strokeWidth = data.size;
+        path.strokeColor = mydata.color;
+        path.strokeWidth = mydata.size;
         path.strokeCap = 'round';
-        path.add(new paper.Point(data.x, data.y));
+        path.add(new paper.Point(mydata.x, mydata.y));
         remoteStrokes.set(key, path);
     });
 
@@ -27,9 +31,11 @@ function initializeSocketEvents() {
                 break;
             }
         }*/
-        const key = `${data.userId}:${data.strokeId || ''}`;
+        mydata = data.data;
+
+        const key = `${data.userId}:${mydata.strokeId || ''}`;
         const path = remoteStrokes.get(key);
-        if (path) path.add(new paper.Point(data.x, data.y));
+        if (path) path.add(new paper.Point(mydata.x, mydata.y));
     });
 
     // Обработка события очистки canvas от других пользователей
@@ -57,7 +63,7 @@ function sendDrawingData(type, point, strokeId) {
         color: currentPath ? currentPath.strokeColor.toCSS() : currentColorLMB,
         size: pencilSize,
         tool: currentTool,
-        strokeId, // важно
+        strokeId,
     };
     socket.emit(type, data);
 }

@@ -115,7 +115,7 @@ canvas {
 }
 
 /* Адаптивность для мобильных устройств */
-/*@media (max-width: 768px) {
+@media (max-width: 768px) {
     body {
         padding: 10px;
     }
@@ -139,7 +139,7 @@ canvas {
     }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 40px) {
     canvas {
         height: 300px;
     }
@@ -154,4 +154,4 @@ canvas {
         width: 100%;
         margin: 5px 0;
     }
-}*/
+}
