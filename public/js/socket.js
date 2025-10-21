@@ -20,15 +20,14 @@ function initializeSocketEvents() {
 
     // Обработка события продолжения рисования от других пользователей
     socket.on('draw continue', (data) => {
-        console.log('Получено событие draw continue:', data);
-        // Находим последний путь от этого пользователя
-        const paths = paper.project.activeLayer.children;
-        for (let i = paths.length - 1; i >= 0; i--) {
-            if (paths[i].data.isRemote) {
-                paths[i].add(new paper.Point(data.x, data.y));
-                break;
-            }
-        }
+        const key = `${data.userId}:${data.strokeId || ''}`;
+        const path = remoteStrokes.get(key);
+        if (path) path.add(new paper.Point(data.x, data.y));
+    });
+
+    socket.on('draw end', (data) => {
+        const key = `${data.userId}:${data.strokeId || ''}`;
+        remoteStrokes.delete(key);
     });
 
     // Обработка события очистки canvas от других пользователей
