@@ -51,6 +51,6 @@ io.on('connection', (socket) => {
 });
 
 const PORT =  4000;
-server.listen(PORT, 'localhost', () => {
+server.listen(PORT, '192.168.1.100', () => {
     console.log(` Сервер  запущен ${PORT}`);
 });

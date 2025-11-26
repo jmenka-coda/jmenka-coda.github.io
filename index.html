@@ -5,12 +5,18 @@
     <title>Paper.js Рисовалка</title>
     <link rel="stylesheet" href="/css/main.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="https://unpkg.com/paper@0.12.17/dist/paper-full.min.js"></script>
-    <!--  <script src="/socket.io/socket.io.js"></script> -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/paper.js/0.12.17/paper-full.min.js"></script>
-    <script src="/js/canvas.js" defer></script>
     <script src="/socket.io/socket.io.js"></script>
+    <script src="https://unpkg.com/paper@0.12.17/dist/paper-full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paper.js/0.12.17/paper-full.min.js"></script>
+    <!-- Модули для работы с canvas -->
+    <script src="/js/canvas-transform.js" type="module"></script>
+    <script src="/js/tool-manager.js" type="module"></script>
+    <script src="/js/tools/pencil-tool.js" type="module"></script>
+    <script src="/js/tools/eraser-tool.js" type="module"></script>
+    <script src="/js/tools/hand-tool.js" type="module"></script>
+    <script src="/js/canvas.js" type="module" defer></script>
     <script src="/js/socket.js"></script>
+    
 </head>
 
 <body>
@@ -20,10 +26,10 @@
             <div class="selectColor">
                 <!-- Для ЛКМ -->
                 <input type="color" id="colorPickerLMB" class="color-picker-lmb" onchange="changeColorL(this.value)"
-                    value="#000000">
+                value="#000000">
                 <!-- Для ПКМ -->
                 <input type="color" id="colorPickerRMB" class="color-picker-rmb" onchange="changeColorR(this.value)"
-                    value="#ffffff">
+                value="#ffffff">
             </div>
             <div class="tools">
                 <button type="button" class="icon-btn activ" onclick="setTool('pencil')" title="Карандаш">
@@ -31,6 +37,9 @@
                 </button>
                 <button type="button" class="icon-btn" onclick="setTool('eraser')" title="Ластик">
                     <i class="fas fa-eraser"></i>
+                </button>
+                <button type="button" class="icon-btn" onclick="setTool('hand')" title="Перемещение">
+                    <i class="fas fa-hand-paper"></i>
                 </button>
             </div>
             <div class="tool-control">
