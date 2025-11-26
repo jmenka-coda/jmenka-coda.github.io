@@ -2,7 +2,7 @@
 import { initPencilTool } from './tools/pencil-tool.js';
 import { initEraserTool } from './tools/eraser-tool.js';
 import { initHandTool } from './tools/hand-tool.js';
-import { applyCanvasTransform } from './canvas-transform.js';
+import { applyCanvasTransform, zoomCanvas } from './canvas-transform.js';
 import { setTool } from './tool-manager.js';
 
 // Ждем загрузки DOM и Paper.js
@@ -63,6 +63,13 @@ function initializeCanvas() {
     canvas.addEventListener('contextmenu', function (e) {
         e.preventDefault();
     });
+
+    // Обработчик колесика мыши для масштабирования
+    // container.addEventListener('wheel', function (e) {
+    //     e.preventDefault();
+    //     const delta = e.deltaY > 0 ? -1 : 1;
+    //     zoomCanvas(delta, e.clientX, e.clientY);
+    // });
 
     // Инициализируем глобальные переменные
     window.currentColorLMB = document.getElementById('colorPickerLMB').value;

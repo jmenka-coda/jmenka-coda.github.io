@@ -55,7 +55,7 @@ export function initPencilTool() {
 
         // Отправляем данные на сервер
         currentStrokeId = (crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`);
-        window.sendDrawingData('draw start', transformedPoint, currentStrokeId);
+        window.sendDrawingData('draw start', transformedPoint, currentStrokeId, currentPath.strokeColor.toCSS(), currentPath.strokeWidth);
     }
 
     toolPencil.onMouseDrag = function (event) {
@@ -74,7 +74,7 @@ export function initPencilTool() {
             }
 
             currentPath.add(transformedPoint);
-            window.sendDrawingData('draw continue', transformedPoint, currentStrokeId);
+            window.sendDrawingData('draw continue', transformedPoint, currentStrokeId, currentPath.strokeColor.toCSS(), currentPath.strokeWidth);
         }
     }
 

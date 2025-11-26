@@ -55,14 +55,17 @@ function initializeSocketEvents() {
 }
 
 // Функция для отправки данных рисования на сервер
-function sendDrawingData(type, point, strokeId) {
+function sendDrawingData(type, point, strokeId, color, size) {
     const data = {
         x: point.x,
         y: point.y,
-        color: currentPath ? currentPath.strokeColor.toCSS() : currentColorLMB,
-        size: pencilSize,
-        tool: currentTool,
+        color: color,
+        size: size,
+        tool: window.currentTool,
         strokeId,
     };
     socket.emit(type, data);
 }
+
+// Экспорт в глобальную область для использования инструментами
+window.sendDrawingData = sendDrawingData;

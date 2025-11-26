@@ -32,7 +32,7 @@ export function initEraserTool() {
         currentPath.add(transformedPoint);
 
         currentStrokeId = (crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`);
-        window.sendDrawingData('draw start', transformedPoint, currentStrokeId);
+        window.sendDrawingData('draw start', transformedPoint, currentStrokeId, currentPath.strokeColor, currentPath.strokeWidth);
     }
 
     toolEraser.onMouseDrag = function (event) {
@@ -49,7 +49,7 @@ export function initEraserTool() {
             }
 
             currentPath.add(transformedPoint);
-            window.sendDrawingData('draw continue', transformedPoint, currentStrokeId);
+            window.sendDrawingData('draw continue', transformedPoint, currentStrokeId, currentPath.strokeColor, currentPath.strokeWidth);
         }
     }
 
