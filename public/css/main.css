@@ -1,3 +1,10 @@
+/* Импорт компонентов */
+@import url('components/buttons.css');
+@import url('components/cards.css');
+@import url('components/forms.css');
+@import url('components/layout.css');
+@import url('components/modal.css');
+
 body {
     font-family: Arial, sans-serif;
     margin: 0;

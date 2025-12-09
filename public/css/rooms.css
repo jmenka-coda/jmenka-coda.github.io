@@ -1,3 +1,8 @@
+/* Импорт компонентов */
+@import url('components/buttons.css');
+@import url('components/forms.css');
+@import url('components/cards.css');
+
 /* Общие стили для страницы комнат */
 * {
     margin: 0;
@@ -16,7 +21,7 @@ body {
 }
 
 .container {
-    max-width: 800px;
+    max-width: 900px;
     width: 100%;
     background: white;
     border-radius: 20px;
@@ -87,54 +92,6 @@ body {
     flex-direction: column;
 }
 
-#newRoomName, #joinRoomName {
-    flex: 1;
-    padding: 12px 16px;
-    border: 2px solid #dee2e6;
-    border-radius: 8px;
-    font-size: 1rem;
-    transition: border-color 0.3s ease;
-}
-
-#newRoomName:focus, #joinRoomName:focus {
-    outline: none;
-    border-color: #667eea;
-}
-
-.btn-primary, .btn-secondary {
-    padding: 12px 20px;
-    border: none;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    white-space: nowrap;
-}
-
-.btn-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-}
-
-.btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-}
-
-.btn-secondary {
-    background: #6c757d;
-    color: white;
-}
-
-.btn-secondary:hover {
-    background: #5a6268;
-    transform: translateY(-2px);
-}
-
 .active-rooms {
     padding: 30px;
     background: #f8f9fa;
@@ -150,55 +107,8 @@ body {
 
 .rooms-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 15px;
-}
-
-.room-card {
-    background: white;
-    border: 2px solid #e9ecef;
-    border-radius: 12px;
-    padding: 20px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    min-height: 120px;
-}
-
-.room-card:hover {
-    border-color: #667eea;
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
-}
-
-.room-card h3 {
-    color: #495057;
-    margin-bottom: 8px;
-    font-size: 1.1rem;
-}
-
-.room-card .room-info {
-    color: #6c757d;
-    font-size: 0.9rem;
-    margin-bottom: 15px;
-}
-
-.room-card .join-btn {
-    align-self: flex-start;
-    padding: 8px 16px;
-    background: #28a745;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: background 0.3s ease;
-}
-
-.room-card .join-btn:hover {
-    background: #218838;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
 }
 
 .loading {
@@ -255,27 +165,6 @@ body {
     display: none;
 }
 
-/* Анимации */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.room-card {
-    animation: fadeIn 0.3s ease-out;
-}
-
-.room-card:nth-child(1) { animation-delay: 0.1s; }
-.room-card:nth-child(2) { animation-delay: 0.2s; }
-.room-card:nth-child(3) { animation-delay: 0.3s; }
-.room-card:nth-child(4) { animation-delay: 0.4s; }
-
 /* Мобильная адаптация */
 @media (max-width: 480px) {
     .header {
@@ -297,11 +186,6 @@ body {
     .join-form {
         flex-direction: column;
         gap: 10px;
-    }
-
-    .btn-primary, .btn-secondary {
-        padding: 12px 16px;
-        font-size: 0.9rem;
     }
 
     .rooms-grid {

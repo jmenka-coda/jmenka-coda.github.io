@@ -1,27 +1,57 @@
 {
   "name": "canvas-drawing-app",
   "version": "1.0.0",
-  "description": "Онлайн рисовалка с совместным рисованием",
+  "description": "Онлайн рисовалка с совместным рисованием в комнатах",
   "main": "index.js",
+  "engines": {
+    "node": ">=14.0.0"
+  },
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js",
-    "host": "node index.js"
+    "start": "cross-env NODE_ENV=production node index.js",
+    "dev": "cross-env NODE_ENV=development nodemon index.js",
+    "debug": "cross-env NODE_ENV=development DEBUG=* nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint src/**/*.js routes/**/*.js",
+    "format": "prettier --write \"src/**/*.js\" \"routes/**/*.js\" \"public/js/**/*.js\"",
+    "clean": "rm -rf node_modules package-lock.json && npm install"
   },
   "keywords": [
     "canvas",
     "drawing",
     "socket.io",
-    "paper.js"
+    "paper.js",
+    "realtime",
+    "collaboration"
   ],
-  "author": "Your Name",
+  "author": "Paper.js Drawing App Team",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/canvas-drawing-app.git"
+  },
   "dependencies": {
     "express": "^4.18.2",
     "socket.io": "^4.7.2"
   },
   "devDependencies": {
+    "cross-env": "^7.0.3",
+    "eslint": "^8.57.0",
     "nodemon": "^3.0.1",
-    "typescript": "^5.9.3"
+    "prettier": "^3.1.0"
+  },
+  "nodemonConfig": {
+    "watch": [
+      "src",
+      "routes",
+      "config",
+      "views",
+      "index.js"
+    ],
+    "ext": "js,json,html,css",
+    "ignore": [
+      "node_modules",
+      "public",
+      "*.log"
+    ]
   }
 }

@@ -1,0 +1,22 @@
+{
+  "server": {
+    "port": 4000,
+    "host": "192.168.1.103",
+    "env": "development"
+  },
+  "socket": {
+    "cors": {
+      "origin": "*",
+      "methods": ["GET", "POST"]
+    }
+  },
+  "rooms": {
+    "maxNameLength": 50,
+    "minNameLength": 2,
+    "cleanupInterval": 300000
+  },
+  "drawing": {
+    "maxStrokePoints": 1000,
+    "maxStrokesPerRoom": 5000
+  }
+}
