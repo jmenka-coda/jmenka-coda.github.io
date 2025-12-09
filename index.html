@@ -16,13 +16,20 @@
     <script src="/js/tools/hand-tool.js" type="module"></script>
     <script src="/js/canvas.js" type="module" defer></script>
     <script src="/js/socket.js"></script>
-    
+    <script src="/js/drawing-page.js"></script>
+
 </head>
 
 <body>
     <div class="canvas-container">
         <canvas id="myCanvas"></canvas>
         <div class="toolBox">
+            <div class="room-info">
+                <span id="roomStatus">Комната: загрузка...</span>
+                <button type="button" onclick="goToRooms()" class="btn-change-room">
+                    <i class="fas fa-arrow-left"></i> Сменить комнату
+                </button>
+            </div>
             <div class="selectColor">
                 <!-- Для ЛКМ -->
                 <input type="color" id="colorPickerLMB" class="color-picker-lmb" onchange="changeColorL(this.value)"

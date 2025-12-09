@@ -46,6 +46,43 @@ canvas {
     min-width: 400px;
 }
 
+/* Стили для информации о комнате */
+.room-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10px;
+    border-right: 1px solid #e0e0e0;
+    margin-right: 10px;
+    min-width: 200px;
+}
+
+#roomStatus {
+    font-size: 13px;
+    color: #666;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.btn-change-room {
+    padding: 6px 12px;
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    transition: background 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-change-room:hover {
+    background: #5a6268;
+}
+
 /* Остальные стили остаются без изменений */
 .selectColor {
     display: flex;
