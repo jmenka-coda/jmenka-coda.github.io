@@ -22,8 +22,7 @@ class Config {
             console.error('Error loading config:', error);
             // Use default config if loading fails
             this.config = {
-                //server: { port: 4000, host: 'localhost' },
-                server: { port: 4000, host: '192.168.1.103' },
+                server: { port: 4000, host: 'localhost' },
                 socket: { cors: { origin: '*', methods: ['GET', 'POST'] } },
                 rooms: { maxNameLength: 50, minNameLength: 2, cleanupInterval: 300000 }
             };
