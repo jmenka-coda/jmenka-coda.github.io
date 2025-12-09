@@ -1,11 +1,8 @@
-// === ФУНКЦИИ ДЛЯ SOCKET.IO ===
 
-// Подключение к Socket.IO
 window.socket = io();
-const remoteStrokes = new Map(); // ключ: `${userId}:${strokeId || ''}`
+const remoteStrokes = new Map();
 
 function initializeSocketEvents() {
-    // Обработка события начала рисования от других пользователей
     socket.on('draw start', (data) => {
         mydata = data.data;
         console.log(data);
@@ -20,17 +17,9 @@ function initializeSocketEvents() {
         remoteStrokes.set(key, path);
     });
 
-    // Обработка события продолжения рисования от других пользователей
     socket.on('draw continue', (data) => {
         console.log('Получено событие draw continue:', data);
-        // Находим последний путь от этого пользователя
-        /* const paths = paper.project.activeLayer.children;
-        for (let i = paths.length - 1; i >= 0; i--) {
-            if (paths[i].data.isRemote) {
-                paths[i].add(new paper.Point(data.x, data.y));
-                break;
-            }
-        }*/
+ 
         mydata = data.data;
 
         const key = `${data.userId}:${mydata.strokeId || ''}`;
@@ -43,19 +32,20 @@ function initializeSocketEvents() {
         remoteStrokes.delete(key);
       });
 
-    // Обработка подключения
     socket.on('connect', () => {
         console.log('Подключен к серверу');
     });
 
-    // Обработка отключения
     socket.on('disconnect', () => {
         console.log('Отключен от сервера');
     });
 }
 
-// Функция для отправки данных рисования на сервер
 function sendDrawingData(type, point, strokeId, color, size) {
+    if (window.currentTool === 'eraser'){
+        color = 'rgb(255, 255, 255)'
+    }
+
     const data = {
         x: point.x,
         y: point.y,
@@ -67,5 +57,4 @@ function sendDrawingData(type, point, strokeId, color, size) {
     socket.emit(type, data);
 }
 
-// Экспорт в глобальную область для использования инструментами
 window.sendDrawingData = sendDrawingData;

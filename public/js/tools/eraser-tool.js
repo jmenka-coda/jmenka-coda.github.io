@@ -1,10 +1,7 @@
-// Модуль инструмента "Ластик"
-
 let toolEraser;
 let currentPath;
 let currentStrokeId = null;
 
-// Инициализация инструмента ластик
 export function initEraserTool() {
     toolEraser = new paper.Tool();
     
@@ -56,12 +53,10 @@ export function initEraserTool() {
     return toolEraser;
 }
 
-// Получить текущий инструмент
 export function getEraserTool() {
     return toolEraser;
 }
 
-// Активировать инструмент ластик
 export function activateEraser() {
     if (toolEraser) {
         toolEraser.activate();

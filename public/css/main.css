@@ -13,6 +13,9 @@ body {
     overflow: hidden;
     position: relative;
     background: #f0f0f0;
+    /* Также предотвращаем скролл для контейнера */
+    touch-action: none;
+    overflow: hidden;
 }
 
 canvas {
@@ -21,7 +24,7 @@ canvas {
     cursor: grab;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     width: 1000px;
-    height: 1000px; 
+    height: 1000px;
 }
 
 .toolBox {
@@ -138,10 +141,10 @@ canvas {
 
 @media (max-width: 768px) {
     .toolBox {
-        min-width: 350px;
         height: 50px;
         gap: 15px;
         padding: 0 20px;
+        width: 100px;
     }
 
     .icon-btn {
@@ -163,4 +166,14 @@ canvas {
     #pencilSize {
         width: 70px;
     }
+} 
+
+#myCanvas {
+    /* Предотвращаем стандартное поведение браузера для касаний */
+    touch-action: none;
+    /* Убираем выделение на мобильных */
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
 }
