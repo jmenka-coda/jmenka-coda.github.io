@@ -2,14 +2,14 @@
   "name": "canvas-drawing-app",
   "version": "1.0.0",
   "description": "Онлайн рисовалка с совместным рисованием в комнатах",
-  "main": "index.js",
+  "main": "server.js",
   "engines": {
     "node": ">=14.0.0"
   },
   "scripts": {
-    "start": "cross-env NODE_ENV=production node index.js",
-    "dev": "cross-env NODE_ENV=development nodemon index.js",
-    "debug": "cross-env NODE_ENV=development DEBUG=* nodemon index.js",
+    "start": "cross-env NODE_ENV=production node src/server/server.js",
+    "dev": "cross-env NODE_ENV=development nodemon src/server/server.js",
+    "debug": "cross-env NODE_ENV=development DEBUG=* nodemon src/server/server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint src/**/*.js routes/**/*.js",
     "format": "prettier --write \"src/**/*.js\" \"routes/**/*.js\" \"public/js/**/*.js\"",
@@ -45,7 +45,7 @@
       "routes",
       "config",
       "views",
-      "index.js"
+      "src/server/server.js"
     ],
     "ext": "js,json,html,css",
     "ignore": [

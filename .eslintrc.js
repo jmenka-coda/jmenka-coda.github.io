@@ -31,7 +31,7 @@ export default [
     },
   },
   {
-    files: ['src/**/*.js', 'routes/**/*.js', 'index.js'],
+    files: ['src/**/*.js', 'routes/**/*.js'],
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'commonjs',

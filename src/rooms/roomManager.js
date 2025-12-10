@@ -153,7 +153,7 @@ function clearRoomState(roomName) {
  * Очищает неактивные комнаты
  * @param {number} maxAge - максимальный возраст комнаты в миллисекундах
  */
-function cleanupInactiveRooms(maxAge = 24 * 60 * 60 * 1000) { // 24 часа по умолчанию
+function cleanupInactiveRooms(maxAge = 30 * 60 * 1000) {
     const now = new Date();
     let cleanedCount = 0;
 
