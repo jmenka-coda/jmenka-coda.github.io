@@ -25,7 +25,18 @@
 
 <body>
     <div class="canvas-container">
+        <div class="active-users">
+            <h2><i class="fas fa-list"></i> Пользователи комнаты</h2>
+            <div id="usersList" class="users-grid">
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    Загрузка пользователей...
+                </div>
+            </div>
+        </div>
+        
         <canvas id="myCanvas"></canvas>
+
         <div class="toolBox">
             <div class="room-info">
                 <span id="roomStatus">Комната: загрузка...</span>
@@ -58,6 +69,9 @@
                 <span id="sizeValue">3px</span>
             </div>
         </div>
+
+
+
     </div>
 </body>
 

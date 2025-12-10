@@ -75,17 +75,25 @@ function handleJoinRoom(socket, io, payload, currentRoomRef) {
 
     if (currentRoomRef) {
         socket.leave(currentRoomRef);
-        roomManager.updateRoomUserCount(io, currentRoomRef);
+        roomManager.updateRoomUsers(io, currentRoomRef);
     }
 
     socket.join(requestedRoom);
-    roomManager.updateRoomUserCount(io, requestedRoom);
+    roomManager.updateRoomUsers(io, requestedRoom);
     console.log(`Пользователь ${socket.id} присоединился к комнате ${requestedRoom}`);
     socket.emit('room joined', { room: requestedRoom });
 
     // Отправляем состояние комнаты новому пользователю
     const state = roomManager.getRoomState(requestedRoom);
     socket.emit('room state', { strokes: state.strokes });
+
+    // Отправляем список пользователей новому пользователю
+    const usersArray = Array.from(state.usersId);
+    const usersList = usersArray.map((socketId, index) => ({
+        id: socketId,
+        name: `Пользователь ${index + 1}`
+    }));
+    socket.emit('users list update', { users: usersList });
 
     return requestedRoom;
 }
@@ -170,8 +178,17 @@ function handleDisconnect(socket, io, currentRoom) {
     console.log('Пользователь отключился:', socket.id);
     // Обновляем счетчик пользователей в комнате при отключении
     if (currentRoom) {
-        roomManager.updateRoomUserCount(io, currentRoom);
+        roomManager.updateRoomUsers(io, currentRoom);
     }
+
+    const state = roomManager.getRoomState(currentRoom);
+    // Отправляем список пользователей новому пользователю
+    const usersArray = Array.from(state.usersId);
+    const usersList = usersArray.map((socketId, index) => ({
+        id: socketId,
+        name: `Пользователь ${index + 1}`
+    }));
+    socket.emit('users list update', { users: usersList });
 }
 
 module.exports = {

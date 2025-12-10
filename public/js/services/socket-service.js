@@ -77,8 +77,46 @@ function initializeSocketEvents() {
         socket.emit('request room state', { room });
     });
 
+    socket.on('users list update', (data) => {
+        console.log('Получен список пользователей:', data);
+        updateUsersList(data.users || []);
+    });
+
     socket.on('disconnect', () => {
         console.log('Отключен от сервера');
+    });
+}
+
+function updateUsersList(users) {
+    const usersListElement = document.getElementById('usersList');
+    if (!usersListElement) return;
+
+    // Очищаем текущий список
+    usersListElement.innerHTML = '';
+
+    if (users.length === 0) {
+        usersListElement.innerHTML = '<div class="no-users">Нет пользователей в комнате</div>';
+        return;
+    }
+
+    // Создаем элементы для каждого пользователя
+    users.forEach(user => {
+        const isCurrentUser = user.id === socket.id;
+        const userElement = document.createElement('div');
+        userElement.className = `user-item ${isCurrentUser ? 'current-user' : ''}`;
+        userElement.innerHTML = `
+            <div class="user-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="user-info">
+                <span class="user-name">${user.name}</span>
+                ${isCurrentUser ? '<span class="current-user-badge">(Вы)</span>' : ''}
+            </div>
+            <div class="user-status">
+                <i class="fas fa-circle" style="color: #4CAF50;"></i>
+            </div>
+        `;
+        usersListElement.appendChild(userElement);
     });
 }
 
@@ -90,7 +128,7 @@ function clearCanvas() {
         }
     });
     remoteStrokes.clear();
-    
+
     // Очищаем все локальные пути на canvas
     if (typeof paper !== 'undefined' && paper.project) {
         paper.project.activeLayer.removeChildren();

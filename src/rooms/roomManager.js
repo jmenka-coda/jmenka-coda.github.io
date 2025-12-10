@@ -20,7 +20,8 @@ function getRoomState(roomName) {
             strokes: [],
             userCount: 0,
             createdAt: new Date(),
-            lastActivity: new Date()
+            lastActivity: new Date(),
+            usersId: []
         });
         logger.info(`Created new room: ${roomName}`);
     }
@@ -28,15 +29,27 @@ function getRoomState(roomName) {
 }
 
 /**
- * Обновляет счетчик пользователей в комнате
+ * Обновляет счетчик пользователей в комнате и отправляет обновление всем пользователям
  * @param {Object} io - Socket.IO сервер
  * @param {string} roomName - название комнаты
  */
-function updateRoomUserCount(io, roomName) {
+function updateRoomUsers(io, roomName) {
     const room = io.sockets.adapter.rooms.get(roomName);
     const userCount = room ? room.size : 0;
     const state = getRoomState(roomName);
     state.userCount = userCount;
+
+    // Сохраняем Set socket.id пользователей
+    state.usersId = room || new Set();
+
+    // Отправляем обновленный список пользователей всем в комнате
+    const usersArray = Array.from(state.usersId);
+    const usersList = usersArray.map((socketId, index) => ({
+        id: socketId,
+        name: `Пользователь ${index + 1}` // Пока используем простые имена
+    }));
+
+    io.to(roomName).emit('users list update', { users: usersList });
 
     // Если в комнате нет пользователей и нет штрихов, удаляем состояние комнаты
     if (userCount === 0 && (!state.strokes || state.strokes.length === 0)) {
@@ -123,7 +136,8 @@ function getActiveRooms(io) {
             rooms.push({
                 name: roomName,
                 userCount: userCount,
-                strokeCount: state.strokes.length
+                strokeCount: state.strokes.length,
+                usersId: room
             });
         }
     }
@@ -197,7 +211,7 @@ function getRoomStats() {
 
 module.exports = {
     getRoomState,
-    updateRoomUserCount,
+    updateRoomUsers,
     addStrokeToRoom,
     updateStrokeInRoom,
     removeStrokeFromRoom,

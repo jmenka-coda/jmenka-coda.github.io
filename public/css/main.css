@@ -221,3 +221,133 @@ canvas {
     -webkit-user-select: none;
     user-select: none;
 }
+
+/* Список активных пользователей - в стиле тулбокса */
+.active-users {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: white;
+    border-radius: 15px;
+    padding: 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    border: 1px solid #e0e0e0;
+    z-index: 1000;
+    min-width: 250px;
+    max-width: 300px;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.active-users h2 {
+    margin: 0 0 15px 0;
+    font-size: 14px;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+}
+
+.active-users h2 i {
+    color: #666;
+}
+
+.users-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.user-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: #f8f9fa;
+    transition: background-color 0.2s;
+    border: 1px solid #e0e0e0;
+}
+
+.user-item:hover {
+    background: #e9ecef;
+}
+
+.user-item.current-user {
+    background: #e3f2fd;
+    border: 1px solid #2196F3;
+}
+
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #2196F3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+
+.user-avatar i {
+    color: white;
+    font-size: 14px;
+}
+
+.user-info {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.user-name {
+    font-size: 14px;
+    color: #333;
+    font-weight: 500;
+}
+
+.current-user-badge {
+    font-size: 12px;
+    color: #2196F3;
+    font-weight: 600;
+}
+
+.user-status {
+    flex-shrink: 0;
+}
+
+.user-status i {
+    font-size: 10px;
+}
+
+.loading, .no-users {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+    font-style: italic;
+}
+
+.loading i {
+    margin-bottom: 10px;
+    font-size: 20px;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .active-users {
+        width: 200px;
+        right: 10px;
+        top: 10px;
+        max-height: 50vh;
+    }
+
+    .active-users h2 {
+        font-size: 14px;
+    }
+
+    .user-name {
+        font-size: 13px;
+    }
+}
