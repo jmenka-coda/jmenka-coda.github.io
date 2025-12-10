@@ -43,6 +43,13 @@ function setupEventListeners() {
             joinRoom();
         }
     });
+
+    document.getElementById('loadRoomsBtn').addEventListener('click', loadRooms);
+    document.getElementById('loadRoomsBtn').addEventListener('click', function(e){
+        if (e.key === 'Enter'){
+            loadRooms();
+        }
+    });
 }
 
 // Загрузка списка комнат
@@ -97,15 +104,16 @@ function joinRoom() {
         return;
     }
 
+    if (!rooms.some(room => room.name.toLowerCase() === roomName.toLowerCase())) {
+        showError('Комната с таким названием не найдена!');
+        return;
+    }
+    
     goToDrawingPage(roomName);
 }
 
 // Переход к странице рисования
 function goToDrawingPage(roomName) {
-    if (!rooms.some(room => room.name.toLowerCase() === roomName.toLowerCase())) {
-        showError('Комната с таким названием не найдена!');
-        return;
-    }
 
     // Сохраняем выбранную комнату в localStorage
     localStorage.setItem('selectedRoom', roomName);    
