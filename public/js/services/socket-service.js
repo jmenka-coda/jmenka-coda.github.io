@@ -2,8 +2,33 @@
 window.socket = io();
 const remoteStrokes = new Map();
 let currentRoom = localStorage.getItem('drawingRoom') || 'default';
+let currentUser = null;
+
+// Функция для получения куки
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
+}
 
 function initializeSocketEvents() {
+    // Обработка аутентификации
+    socket.on('authenticated', (data) => {
+        currentUser = data.user;
+        console.log('Пользователь аутентифицирован:', currentUser);
+    });
+
+    socket.on('authentication error', (data) => {
+        console.error('Ошибка аутентификации:', data.error);
+    });
+
+    // Аутентифицируем пользователя при подключении
+    const sessionId = getCookie('sessionId');
+    if (sessionId) {
+        socket.emit('authenticate', { sessionId });
+    }
+
     socket.on('draw start', (data) => {
         mydata = data.data;
         console.log(data);
@@ -135,18 +160,31 @@ function clearCanvas() {
     }
 }
 
-function joinRoom(roomName) {
+function joinRoom(roomName, password = null) {
     const room = (roomName || 'default').trim() || 'default';
-    
+
     // Очищаем холст перед сменой комнаты
     if (currentRoom !== room) {
         clearCanvas();
     }
-    
+
     currentRoom = room;
     window.currentRoom = room;
     localStorage.setItem('drawingRoom', room);
-    socket.emit('join room', { room });
+
+    // Сохраняем пароль для комнаты, если он предоставлен
+    if (password !== null && password !== undefined) {
+        localStorage.setItem(`roomPassword_${room}`, password);
+    }
+
+    // Получаем session ID из cookies
+    const sessionId = getCookie('sessionId');
+
+    socket.emit('join room', {
+        room,
+        password,
+        sessionId
+    });
 }
 
 function joinRoomFromUI() {

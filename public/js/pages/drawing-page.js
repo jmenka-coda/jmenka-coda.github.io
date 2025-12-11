@@ -23,7 +23,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Автоматически присоединяемся к комнате
     setTimeout(() => {
         if (window.joinRoom) {
-            window.joinRoom(roomName);
+            // Проверяем, есть ли сохраненный пароль для этой комнаты
+            const savedPassword = localStorage.getItem(`roomPassword_${roomName}`);
+            window.joinRoom(roomName, savedPassword);
         }
     }, 100);
 });

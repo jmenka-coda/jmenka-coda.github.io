@@ -62,7 +62,14 @@ function initializeSocketEvents() {
 
     socket.on('connect', () => {
         console.log('Подключен к серверу');
-        joinRoom(currentRoom);
+        // Используем сохраненный пароль для комнаты
+        const savedPassword = localStorage.getItem(`roomPassword_${currentRoom}`);
+        if (window.joinRoom) {
+            window.joinRoom(currentRoom, savedPassword);
+        } else {
+            // Fallback на локальную функцию без пароля
+            joinRoom(currentRoom);
+        }
     });
 
     socket.on('room joined', (payload) => {

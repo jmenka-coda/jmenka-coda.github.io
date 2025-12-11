@@ -3,6 +3,7 @@
  */
 
 const roomManager = require('../rooms/roomManager');
+const userManager = require('../utils/userManager');
 
 /**
  * Настраивает обработчики Socket.IO событий
@@ -12,22 +13,97 @@ function setupSocketHandlers(io) {
     io.on('connection', (socket) => {
         console.log('Новый пользователь подключился:', socket.id);
 
-        let currentRoom = 'default';
-        socket.join(currentRoom);
+        let currentRoom = null;
+        let currentUser = null;
 
-        // Создание комнаты (просто инициализирует комнату без присоединения)
-        socket.on('create room', (payload = {}) => {
-            const roomName = (payload.room || '').trim();
-            if (roomName) {
-                roomManager.getRoomState(roomName); // Создает комнату в памяти
-                console.log(`Комната ${roomName} инициализирована`);
+        // Аутентификация пользователя
+        socket.on('authenticate', async (payload = {}) => {
+            try {
+                const sessionId = payload.sessionId;
+                const ipAddress = socket.handshake.address;
+                const userAgent = socket.handshake.headers['user-agent'];
+
+                currentUser = await userManager.getOrCreateUser(sessionId, ipAddress, userAgent);
+
+                // Сохраняем пользователя на объекте socket для использования в других функциях
+                socket.currentUser = currentUser;
+
+                socket.emit('authenticated', {
+                    user: {
+                        id: currentUser.id,
+                        nickname: currentUser.nickname
+                    }
+                });
+
+                console.log(`Пользователь ${currentUser.nickname} (${currentUser.id}) аутентифицирован`);
+            } catch (error) {
+                console.error('Ошибка аутентификации:', error);
+                socket.emit('authentication error', { error: 'Ошибка аутентификации' });
+            }
+        });
+
+        // Создание комнаты с паролем
+        socket.on('create room', async (payload = {}) => {
+            try {
+                const roomName = (payload.room || '').trim();
+                const password = payload.password;
+
+                if (!roomName) {
+                    socket.emit('room creation error', { error: 'Название комнаты обязательно' });
+                    return;
+                }
+
+                if (!currentUser) {
+                    socket.emit('room creation error', { error: 'Пользователь не аутентифицирован' });
+                    return;
+                }
+
+                const result = await roomManager.createRoom(roomName, password, currentUser.id);
+
+                socket.emit('room created', {
+                    room: roomName,
+                    isPrivate: result.isPrivate
+                });
+
+                console.log(`Комната ${roomName} создана пользователем ${currentUser.nickname}`);
+            } catch (error) {
+                console.error('Ошибка создания комнаты:', error);
+                socket.emit('room creation error', { error: error.message || 'Ошибка создания комнаты' });
             }
         });
 
         // Присоединение к комнате
-        socket.on('join room', (payload = {}) => {
-            handleJoinRoom(socket, io, payload, currentRoom);
-            currentRoom = (payload.room || 'default').trim() || 'default';
+        socket.on('join room', async (payload = {}) => {
+            try {
+                const roomName = (payload.room || 'default').trim() || 'default';
+                const password = payload.password;
+
+                // Получаем информацию о комнате
+                const roomInfo = await roomManager.getRoomInfo(roomName);
+
+                // Если комната существует и является приватной
+                if (roomInfo && roomInfo.password_hash) {
+                    // Проверяем пароль
+                    const isValidPassword = await roomManager.verifyRoomPassword(roomName, password);
+                    if (!isValidPassword) {
+                        socket.emit('join room error', { error: 'Неверный пароль для приватной комнаты' });
+                        return;
+                    }
+                } else if (!roomInfo) {
+                    // Комната не существует - создаем публичную
+                    await roomManager.createRoom(roomName, null, currentUser?.id);
+                    console.log(`Создана новая публичная комната: ${roomName}`);
+                }
+
+                // Присоединяемся к комнате
+                handleJoinRoom(socket, io, payload, currentRoom, currentUser);
+                currentRoom = roomName;
+
+                console.log(`Пользователь ${currentUser ? currentUser.nickname : 'аноним'} присоединился к комнате ${roomName}`);
+            } catch (error) {
+                console.error('Ошибка присоединения к комнате:', error);
+                socket.emit('join room error', { error: error.message || 'Ошибка присоединения к комнате' });
+            }
         });
 
         // Запрос списка комнат
@@ -62,7 +138,7 @@ function setupSocketHandlers(io) {
 
         // Отключение пользователя
         socket.on('disconnect', () => {
-            handleDisconnect(socket, io, currentRoom);
+            handleDisconnect(socket, io, currentRoom, currentUser);
         });
     });
 }
@@ -70,7 +146,7 @@ function setupSocketHandlers(io) {
 /**
  * Обработка присоединения к комнате
  */
-function handleJoinRoom(socket, io, payload, currentRoomRef) {
+function handleJoinRoom(socket, io, payload, currentRoomRef, currentUser) {
     const requestedRoom = (payload.room || 'default').trim() || 'default';
 
     if (currentRoomRef) {
@@ -87,23 +163,55 @@ function handleJoinRoom(socket, io, payload, currentRoomRef) {
     const state = roomManager.getRoomState(requestedRoom);
     socket.emit('room state', { strokes: state.strokes });
 
-    // Отправляем список пользователей новому пользователю
-    const usersArray = Array.from(state.usersId);
-    const usersList = usersArray.map((socketId, index) => ({
-        id: socketId,
-        name: `Пользователь ${index + 1}`
-    }));
-    socket.emit('users list update', { users: usersList });
+    // Обновляем список пользователей для всех в комнате
+    updateUsersList(io, requestedRoom);
 
     return requestedRoom;
 }
 
 /**
+ * Обновляет список пользователей для комнаты с реальными никами
+ */
+function updateUsersList(io, roomName) {
+    const room = io.sockets.adapter.rooms.get(roomName);
+    if (!room) return;
+
+    const usersList = [];
+    let anonymousCount = 0;
+
+    for (const socketId of room) {
+        const socket = io.sockets.sockets.get(socketId);
+        if (socket && socket.currentUser) {
+            usersList.push({
+                id: socketId,
+                name: socket.currentUser.nickname,
+                authenticated: true
+            });
+        } else {
+            // Анонимный пользователь
+            anonymousCount++;
+            usersList.push({
+                id: socketId,
+                name: `Аноним ${anonymousCount}`,
+                authenticated: false
+            });
+        }
+    }
+
+    io.to(roomName).emit('users list update', { users: usersList });
+}
+
+/**
  * Обработка запроса списка комнат
  */
-function handleGetRooms(socket, io) {
-    const rooms = roomManager.getActiveRooms(io);
-    socket.emit('rooms list', { rooms });
+async function handleGetRooms(socket, io) {
+    try {
+        const rooms = await roomManager.getActiveRooms(io);
+        socket.emit('rooms list', { rooms });
+    } catch (error) {
+        console.error('Error getting rooms list:', error);
+        socket.emit('rooms list', { rooms: [] });
+    }
 }
 
 /**
@@ -174,21 +282,13 @@ function handleClearCanvas(socket, currentRoom) {
 /**
  * Обработка отключения пользователя
  */
-function handleDisconnect(socket, io, currentRoom) {
-    console.log('Пользователь отключился:', socket.id);
+function handleDisconnect(socket, io, currentRoom, currentUser) {
+    console.log(`Пользователь ${currentUser ? currentUser.nickname : socket.id} отключился`);
     // Обновляем счетчик пользователей в комнате при отключении
     if (currentRoom) {
         roomManager.updateRoomUsers(io, currentRoom);
+        updateUsersList(io, currentRoom);
     }
-
-    const state = roomManager.getRoomState(currentRoom);
-    // Отправляем список пользователей новому пользователю
-    const usersArray = Array.from(state.usersId);
-    const usersList = usersArray.map((socketId, index) => ({
-        id: socketId,
-        name: `Пользователь ${index + 1}`
-    }));
-    socket.emit('users list update', { users: usersList });
 }
 
 module.exports = {

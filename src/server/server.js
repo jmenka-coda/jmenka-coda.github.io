@@ -1,34 +1,57 @@
-/**
- * Основной серверный файл
- */
-
 const http = require('http');
 const socketIo = require('socket.io');
 const { createApp } = require('./app');
 const { setupSocketHandlers } = require('../socket/socketHandler');
+const roomManager = require('../rooms/roomManager');
+const { UserManager, SessionManager } = require('../utils/database');
 
-// Конфигурация сервера
 const config = require('../utils/config');
 const PORT = config.get('server.port');
 const HOST = config.get('server.host');
 
-// Создаем Express приложение
 const app = createApp();
-
-// Создаем HTTP сервер
 const server = http.createServer(app);
-
-// Создаем Socket.IO сервер
 const io = socketIo(server);
 
-// Настраиваем обработчики Socket.IO
 setupSocketHandlers(io);
 
-// Запуск сервера
+async function startAutoCleanup() {
+    console.log('Запуск автоматической очистки базы данных...');
+
+    // Очистка каждые 5 минут
+    setInterval(async () => {
+        try {
+            const sessionsCleaned = await SessionManager.cleanExpiredSessions();
+
+            const roomsCleaned = await UserManager.deleteOldRooms(5);
+
+            if (sessionsCleaned > 0 || roomsCleaned > 0) {
+                console.log(`Автоматическая очистка: ${sessionsCleaned} сессий, ${roomsCleaned} комнат`);
+            }
+        } catch (error) {
+            console.error('Ошибка автоматической очистки:', error);
+        }
+    }, 5 * 60 * 1000);
+
+    // очищаем комнаты
+    setInterval(async () => {
+        try {
+            const cleaned = await roomManager.cleanupInactiveRooms(30 * 1000);
+            if (cleaned > 0) {
+                console.log(`Очищено ${cleaned} неактивных комнат из памяти`);
+            }
+        } catch (error) {
+            console.error('Ошибка очистки комнат в памяти:', error);
+        }
+    }, 5 * 30 * 1000);
+}
+
 server.listen(PORT, HOST, () => {
-    console.log(`🚀 Сервер запущен на http://${HOST}:${PORT}`);
-    console.log(`📝 Страница комнат: http://${HOST}:${PORT}/rooms`);
-    console.log(`🎨 Страница рисования: http://${HOST}:${PORT}/drawing`);
+    console.log(`Сервер запущен на http://${HOST}:${PORT}`);
+    console.log(`Страница комнат: http://${HOST}:${PORT}/rooms`);
+    console.log(`Страница рисования: http://${HOST}:${PORT}/drawing`);
+
+    startAutoCleanup();
 });
 
 module.exports = {
@@ -36,3 +59,6 @@ module.exports = {
     server,
     io
 };
+
+
+// после создания приватной комнаты все равно переносит на неприватную 

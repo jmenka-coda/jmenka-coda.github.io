@@ -4,6 +4,7 @@
 
 const Logger = require('../utils/logger');
 const config = require('../utils/config');
+const { RoomManager: DBRoomManager } = require('../utils/database');
 const logger = new Logger('RoomManager');
 
 // Хранилище состояния комнат: roomName -> { strokes: [...], userCount: number, createdAt: Date }
@@ -21,11 +22,72 @@ function getRoomState(roomName) {
             userCount: 0,
             createdAt: new Date(),
             lastActivity: new Date(),
-            usersId: []
+            usersId: [],
+            isPrivate: false
         });
         logger.info(`Created new room: ${roomName}`);
     }
     return roomStates.get(roomName);
+}
+
+/**
+ * Создает комнату с опциональным паролем
+ * @param {string} roomName - название комнаты
+ * @param {string} password - пароль (опционально)
+ * @param {string} createdBy - ID пользователя, создавшего комнату
+ * @returns {Promise<Object>} результат создания
+ */
+async function createRoom(roomName, password = null, createdBy = null) {
+    try {
+        const bcrypt = require('bcryptjs');
+        let passwordHash = null;
+
+        if (password && password.trim()) {
+            passwordHash = await bcrypt.hash(password.trim(), 10);
+        }
+
+        // Сохраняем в базу данных
+        await DBRoomManager.upsertRoom(roomName, passwordHash, createdBy);
+
+        // Создаем состояние в памяти
+        const state = getRoomState(roomName);
+        state.isPrivate = passwordHash !== null;
+
+        logger.info(`Created room: ${roomName}, private: ${state.isPrivate}`);
+        return { success: true, isPrivate: state.isPrivate };
+    } catch (error) {
+        logger.error(`Error creating room ${roomName}:`, error);
+        throw error;
+    }
+}
+
+/**
+ * Проверяет пароль для доступа к приватной комнате
+ * @param {string} roomName - название комнаты
+ * @param {string} password - пароль для проверки
+ * @returns {Promise<boolean>} результат проверки
+ */
+async function verifyRoomPassword(roomName, password) {
+    try {
+        return await DBRoomManager.verifyRoomPassword(roomName, password);
+    } catch (error) {
+        logger.error(`Error verifying password for room ${roomName}:`, error);
+        return false;
+    }
+}
+
+/**
+ * Получает информацию о комнате из базы данных
+ * @param {string} roomName - название комнаты
+ * @returns {Promise<Object|null>} информация о комнате
+ */
+async function getRoomInfo(roomName) {
+    try {
+        return await DBRoomManager.getRoomByName(roomName);
+    } catch (error) {
+        logger.error(`Error getting room info for ${roomName}:`, error);
+        return null;
+    }
 }
 
 /**
@@ -42,19 +104,9 @@ function updateRoomUsers(io, roomName) {
     // Сохраняем Set socket.id пользователей
     state.usersId = room || new Set();
 
-    // Отправляем обновленный список пользователей всем в комнате
-    const usersArray = Array.from(state.usersId);
-    const usersList = usersArray.map((socketId, index) => ({
-        id: socketId,
-        name: `Пользователь ${index + 1}` // Пока используем простые имена
-    }));
-
-    io.to(roomName).emit('users list update', { users: usersList });
-
-    // Если в комнате нет пользователей и нет штрихов, удаляем состояние комнаты
-    if (userCount === 0 && (!state.strokes || state.strokes.length === 0)) {
-        roomStates.delete(roomName);
-    }
+    // Не удаляем комнаты из памяти, чтобы они оставались в списке
+    // Комнаты будут удаляться только по таймеру cleanupInactiveRooms
+    // или при перезапуске сервера
 }
 
 /**
@@ -119,30 +171,99 @@ function removeStrokeFromRoom(roomName, userId, strokeId) {
 }
 
 /**
+ * Получает список всех комнат из базы данных
+ * @returns {Promise<Array>} массив комнат с информацией
+ */
+async function getAllRoomsFromDB() {
+    try {
+        const dbRooms = await DBRoomManager.getAllRooms();
+        return dbRooms.map(dbRoom => ({
+            name: dbRoom.name,
+            userCount: 0, // Без io сервера не можем узнать количество пользователей
+            strokeCount: 0,
+            usersId: null,
+            isPrivate: dbRoom.is_private,
+            createdAt: dbRoom.created_at,
+            lastActivity: dbRoom.last_activity
+        }));
+    } catch (error) {
+        logger.error('Error getting rooms from database:', error);
+        return [];
+    }
+}
+
+/**
  * Получает список всех активных комнат
  * @param {Object} io - Socket.IO сервер
- * @returns {Array} массив комнат с информацией
+ * @returns {Promise<Array>} массив комнат с информацией
  */
-function getActiveRooms(io) {
+async function getActiveRooms(io) {
     const rooms = [];
 
-    // Обновляем счетчики пользователей для всех комнат
-    for (const [roomName, state] of roomStates) {
-        const room = io.sockets.adapter.rooms.get(roomName);
-        const userCount = room ? room.size : 0;
-        state.userCount = userCount;
+    // Получаем информацию о комнатах из базы данных
+    const dbRooms = await DBRoomManager.getAllRooms();
 
-        if (userCount > 0 || state.strokes.length > 0) {
+    // Если io сервер доступен, обновляем счетчики пользователей
+    if (io) {
+        const dbRoomsMap = new Map(dbRooms.map(room => [room.name, room]));
+
+        // Обновляем счетчики пользователей для всех комнат
+        for (const [roomName, state] of roomStates) {
+            const room = io.sockets.adapter.rooms.get(roomName);
+            const userCount = room ? room.size : 0;
+            state.userCount = userCount;
+
+            const dbRoom = dbRoomsMap.get(roomName);
+
+            // Отображаем все комнаты из памяти, если они есть в базе данных
+            if (dbRoom) {
+                rooms.push({
+                    name: roomName,
+                    userCount: userCount,
+                    strokeCount: state.strokes.length,
+                    usersId: room,
+                    isPrivate: dbRoom.is_private,
+                    createdAt: dbRoom.created_at,
+                    lastActivity: dbRoom.last_activity
+                });
+            }
+        }
+
+        // Добавляем комнаты из базы данных, которые не активны в памяти, но существуют
+        for (const dbRoom of dbRooms) {
+            if (!roomStates.has(dbRoom.name)) {
+                // Проверяем, есть ли активные пользователи в комнате
+                const room = io.sockets.adapter.rooms.get(dbRoom.name);
+                const userCount = room ? room.size : 0;
+
+                // Отображаем все комнаты из базы данных, даже пустые
+                rooms.push({
+                    name: dbRoom.name,
+                    userCount: userCount,
+                    strokeCount: 0,
+                    usersId: room,
+                    isPrivate: dbRoom.is_private,
+                    createdAt: dbRoom.created_at,
+                    lastActivity: dbRoom.last_activity
+                });
+            }
+        }
+    } else {
+        // Если io сервер недоступен (REST API), просто возвращаем все комнаты из БД
+        for (const dbRoom of dbRooms) {
             rooms.push({
-                name: roomName,
-                userCount: userCount,
-                strokeCount: state.strokes.length,
-                usersId: room
+                name: dbRoom.name,
+                userCount: 0, // Без io сервера не можем узнать количество пользователей
+                strokeCount: 0,
+                usersId: null,
+                isPrivate: dbRoom.is_private,
+                createdAt: dbRoom.created_at,
+                lastActivity: dbRoom.last_activity
             });
         }
     }
 
-    // Удаляем пустые комнаты
+    // Удаляем пустые комнаты из памяти
     for (const [roomName, state] of roomStates) {
         if (state.userCount === 0 && state.strokes.length === 0) {
             roomStates.delete(roomName);
@@ -167,15 +288,33 @@ function clearRoomState(roomName) {
  * Очищает неактивные комнаты
  * @param {number} maxAge - максимальный возраст комнаты в миллисекундах
  */
-function cleanupInactiveRooms(maxAge = 30 * 60 * 1000) {
+async function cleanupInactiveRooms(maxAge = 5 * 60 * 1000) { // 5 минут
     const now = new Date();
     let cleanedCount = 0;
 
-    for (const [roomName, state] of roomStates) {
-        const age = now - state.lastActivity;
-        if (state.userCount === 0 && age > maxAge) {
-            roomStates.delete(roomName);
-            cleanedCount++;
+    try {
+        // Получаем все комнаты из базы данных
+        const dbRooms = await DBRoomManager.getAllRooms();
+        const dbRoomNames = new Set(dbRooms.map(room => room.name));
+
+        for (const [roomName, state] of roomStates) {
+            const age = now - state.lastActivity;
+
+            // Не удаляем комнаты, которые есть в базе данных
+            if (!dbRoomNames.has(roomName) && state.userCount === 0 && age > maxAge) {
+                roomStates.delete(roomName);
+                cleanedCount++;
+            }
+        }
+    } catch (error) {
+        logger.error('Error during room cleanup:', error);
+        // В случае ошибки очищаем только очень старые комнаты
+        for (const [roomName, state] of roomStates) {
+            const age = now - state.lastActivity;
+            if (state.userCount === 0 && age > maxAge * 2) {
+                roomStates.delete(roomName);
+                cleanedCount++;
+            }
         }
     }
 
@@ -216,5 +355,10 @@ module.exports = {
     updateStrokeInRoom,
     removeStrokeFromRoom,
     getActiveRooms,
-    clearRoomState
+    getAllRoomsFromDB,
+    clearRoomState,
+    createRoom,
+    verifyRoomPassword,
+    getRoomInfo,
+    cleanupInactiveRooms
 };

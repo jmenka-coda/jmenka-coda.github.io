@@ -17,11 +17,32 @@
             <p>Выберите комнату или создайте новую для совместного рисования</p>
         </div>
 
+        <div class="user-section">
+            <div class="user-info">
+                <h2><i class="fas fa-user"></i> Ваш профиль</h2>
+                <div class="nickname-form">
+                    <input type="text" id="userNickname" placeholder="Введите ваш никнейм" maxlength="20">
+                    <button id="updateNicknameBtn" class="btn-secondary">
+                        <i class="fas fa-save"></i> Сохранить
+                    </button>
+                </div>
+                <div id="currentUserInfo" class="current-user">
+                    <!-- Текущий пользователь будет отображаться здесь -->
+                </div>
+            </div>
+        </div>
+
         <div class="room-section">
             <div class="create-room">
                 <h2>Создать новую комнату</h2>
                 <div class="create-form">
                     <input type="text" id="newRoomName" placeholder="Название комнаты" maxlength="50">
+                    <div class="password-section">
+                        <label for="newRoomPassword">
+                            <input type="checkbox" id="roomPrivateCheckbox"> Сделать комнату приватной
+                        </label>
+                        <input type="password" id="newRoomPassword" placeholder="Пароль (опционально)" maxlength="50" style="display: none;">
+                    </div>
                     <button id="createRoomBtn" class="btn-primary">
                         <i class="fas fa-plus"></i> Создать комнату
                     </button>
@@ -32,6 +53,7 @@
                 <h2>Присоединиться к комнате</h2>
                 <div class="join-form">
                     <input type="text" id="joinRoomName" placeholder="Название комнаты">
+                    <input type="password" id="joinRoomPassword" placeholder="Пароль (если комната приватная)" style="display: none;">
                     <button id="joinRoomBtn" class="btn-secondary">
                         <i class="fas fa-sign-in-alt"></i> Присоединиться
                     </button>

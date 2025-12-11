@@ -4,6 +4,7 @@
 
 const express = require('express');
 const path = require('path');
+const cookieParser = require('cookie-parser');
 const pagesRouter = require('../../routes/pages');
 const apiRouter = require('../../routes/api');
 const errorHandler = require('../middleware/errorHandler');
@@ -22,6 +23,9 @@ function createApp(io) {
     // Middleware для парсинга JSON
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
+
+    // Middleware для парсинга cookies
+    app.use(cookieParser());
 
     // Настройка статических файлов
     app.use(express.static('public'));
