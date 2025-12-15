@@ -78,6 +78,18 @@ function setupSocketHandlers(io) {
                 const roomName = (payload.room || 'default').trim() || 'default';
                 const password = payload.password;
 
+                // Автоматически создаем пользователя, если его нет
+                if (!currentUser) {
+                    const sessionId = payload.sessionId || socket.id; // Используем socket.id как sessionId если нет настоящего
+                    const ipAddress = socket.handshake.address;
+                    const userAgent = socket.handshake.headers['user-agent'];
+
+                    currentUser = await userManager.getOrCreateUser(sessionId, ipAddress, userAgent);
+                    socket.currentUser = currentUser;
+
+                    console.log(`Автоматически создан пользователь ${currentUser.nickname} для socket ${socket.id}`);
+                }
+
                 // Получаем информацию о комнате
                 const roomInfo = await roomManager.getRoomInfo(roomName);
 
@@ -91,7 +103,7 @@ function setupSocketHandlers(io) {
                     }
                 } else if (!roomInfo) {
                     // Комната не существует - создаем публичную
-                    await roomManager.createRoom(roomName, null, currentUser?.id);
+                    await roomManager.createRoom(roomName, null, currentUser.id);
                     console.log(`Создана новая публичная комната: ${roomName}`);
                 }
 
@@ -99,7 +111,7 @@ function setupSocketHandlers(io) {
                 handleJoinRoom(socket, io, payload, currentRoom, currentUser);
                 currentRoom = roomName;
 
-                console.log(`Пользователь ${currentUser ? currentUser.nickname : 'аноним'} присоединился к комнате ${roomName}`);
+                console.log(`Пользователь ${currentUser.nickname} присоединился к комнате ${roomName}`);
             } catch (error) {
                 console.error('Ошибка присоединения к комнате:', error);
                 socket.emit('join room error', { error: error.message || 'Ошибка присоединения к комнате' });
@@ -177,7 +189,6 @@ function updateUsersList(io, roomName) {
     if (!room) return;
 
     const usersList = [];
-    let anonymousCount = 0;
 
     for (const socketId of room) {
         const socket = io.sockets.sockets.get(socketId);
@@ -188,11 +199,10 @@ function updateUsersList(io, roomName) {
                 authenticated: true
             });
         } else {
-            // Анонимный пользователь
-            anonymousCount++;
+            // Fallback для пользователей без currentUser (хотя теперь это не должно происходить)
             usersList.push({
                 id: socketId,
-                name: `Аноним ${anonymousCount}`,
+                name: `Пользователь ${socketId.substring(0, 6)}`,
                 authenticated: false
             });
         }
@@ -283,7 +293,9 @@ function handleClearCanvas(socket, currentRoom) {
  * Обработка отключения пользователя
  */
 function handleDisconnect(socket, io, currentRoom, currentUser) {
-    console.log(`Пользователь ${currentUser ? currentUser.nickname : socket.id} отключился`);
+    const userName = currentUser ? currentUser.nickname : socket.currentUser ? socket.currentUser.nickname : socket.id;
+    console.log(`Пользователь ${userName} отключился`);
+
     // Обновляем счетчик пользователей в комнате при отключении
     if (currentRoom) {
         roomManager.updateRoomUsers(io, currentRoom);

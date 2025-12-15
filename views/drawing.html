@@ -73,6 +73,31 @@
 
 
     </div>
+
+    <!-- Модальное окно для ввода пароля приватной комнаты -->
+    <div id="privateRoomModal" class="modal-overlay" style="display: none;">
+        <div class="modal modal-md">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-lock"></i> Приватная комната</h3>
+                <button class="modal-close" onclick="closePrivateRoomModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="password-modal">
+                    <p>Комната "<strong id="privateRoomName"></strong>" является приватной.</p>
+                    <p>Введите пароль для входа:</p>
+                    <input type="password" id="privateRoomPassword" placeholder="Пароль" class="modal-input">
+                    <div class="modal-error" id="passwordError" style="display: none;"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closePrivateRoomModal()">Отмена</button>
+                <button class="btn-primary" onclick="joinPrivateRoom()">Присоединиться</button>
+            </div>
+        </div>
+    </div>
+
 </body>
 
 </html>

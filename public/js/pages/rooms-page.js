@@ -334,7 +334,6 @@ function displayRooms(roomsList) {
                 </h3>
                 <div class="room-info">
                     <i class="fas fa-users"></i> ${room.userCount || 0} ${getUsersText(room.userCount || 0)}
-                    ${room.strokeCount ? `<i class="fas fa-paint-brush"></i> ${room.strokeCount} штрихов` : ''}
                 </div>
             </div>
             <button class="join-btn" onclick="joinRoomFromCard('${room.name}'); event.stopPropagation();">
@@ -345,16 +344,16 @@ function displayRooms(roomsList) {
 }
 
 // Присоединение к комнате из карточки
-function joinRoomFromCard(roomName) {
+function joinRoomFromCard(roomName) {    
     const room = rooms.find(r => r.name === roomName);
     if (!room) {
         showError('Комната не найдена');
         return;
     }
-
+    
     // Заполняем форму именем комнаты
     document.getElementById('joinRoomName').value = roomName;
-
+    
     // Если комната приватная, показываем поле пароля
     if (room.isPrivate) {
         document.getElementById('joinRoomPassword').style.display = 'block';
@@ -363,8 +362,7 @@ function joinRoomFromCard(roomName) {
         document.getElementById('joinRoomPassword').style.display = 'none';
     }
 
-    // Прокручиваем к форме
-    document.getElementById('joinRoomName').scrollIntoView({ behavior: 'smooth' });
+    joinRoom();
 }
 
 
