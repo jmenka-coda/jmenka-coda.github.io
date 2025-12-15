@@ -72,22 +72,24 @@ canvas {
 }
 
 .btn-change-room {
-    padding: 6px 12px;
-    background: #6c757d;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: 500;
-    transition: background 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 5px;
+    padding: 8px 16px !important;
+    background: #6c757d !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 50px !important;
+    cursor: pointer !important;
+    font-size: 0.9rem !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 5px !important;
 }
 
 .btn-change-room:hover {
-    background: #5a6268;
+    background: #5a6268 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3) !important;
 }
 
 /* Остальные стили остаются без изменений */

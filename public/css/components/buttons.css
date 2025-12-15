@@ -1,104 +1,157 @@
-/* Стили кнопок */
+/* Стили кнопок - полностью переписанные */
 
-/* Базовые стили кнопок */
-.btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-decoration: none;
-    white-space: nowrap;
+/* Базовые стили всех кнопок */
+.btn,
+.btn-primary,
+.btn-secondary,
+.btn-secondary1,
+.btn-success,
+.btn-danger,
+.btn-link,
+.join-btn,
+.btn-change-room {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    padding: 12px 24px !important;
+    border: none !important;
+    border-radius: 50px !important; /* Максимально скругленные */
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    text-decoration: none !important;
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
 }
 
-.btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+/* Отключенные кнопки */
+.btn:disabled,
+.btn-primary:disabled,
+.btn-secondary:disabled,
+.btn-secondary1:disabled,
+.btn-success:disabled,
+.btn-danger:disabled,
+.btn-link:disabled,
+.join-btn:disabled,
+.btn-change-room:disabled {
+    opacity: 0.6 !important;
+    cursor: not-allowed !important;
     transform: none !important;
 }
 
-.btn:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+/* Hover эффекты для всех кнопок */
+.btn:hover:not(:disabled),
+.btn-primary:hover:not(:disabled),
+.btn-secondary:hover:not(:disabled),
+.btn-secondary1:hover:not(:disabled),
+.btn-success:hover:not(:disabled),
+.btn-danger:hover:not(:disabled),
+.btn-link:hover:not(:disabled),
+.join-btn:hover:not(:disabled),
+.btn-change-room:hover:not(:disabled) {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3) !important;
 }
 
-.btn:active:not(:disabled) {
-    transform: translateY(0);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+/* Active эффекты */
+.btn:active:not(:disabled),
+.btn-primary:active:not(:disabled),
+.btn-secondary:active:not(:disabled),
+.btn-secondary1:active:not(:disabled),
+.btn-success:active:not(:disabled),
+.btn-danger:active:not(:disabled),
+.btn-link:active:not(:disabled),
+.join-btn:active:not(:disabled),
+.btn-change-room:active:not(:disabled) {
+    transform: translateY(0) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
 }
 
 /* Первичная кнопка */
 .btn-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
 }
 
 .btn-primary:hover:not(:disabled) {
-    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5) !important;
 }
 
 /* Вторичная кнопка */
 .btn-secondary {
-    background: #6c757d;
-    color: white;
+    background: #6c757d !important;
+    color: white !important;
+}
+
+.btn-secondary1 {
+    background: #6c757d !important;
+    color: white !important;
+    margin-bottom: 5px;
 }
 
 .btn-secondary:hover:not(:disabled) {
-    background: #5a6268;
+    background: #5a6268 !important;
 }
 
 /* Кнопка успеха */
-.btn-success {
-    background: #28a745;
-    color: white;
+.btn-success,
+.join-btn {
+    background: #28a745 !important;
+    color: white !important;
 }
 
-.btn-success:hover:not(:disabled) {
-    background: #218838;
+.btn-success:hover:not(:disabled),
+.join-btn:hover:not(:disabled) {
+    background: #218838 !important;
 }
 
 /* Кнопка опасности */
 .btn-danger {
-    background: #dc3545;
-    color: white;
+    background: #dc3545 !important;
+    color: white !important;
 }
 
 .btn-danger:hover:not(:disabled) {
-    background: #c82333;
+    background: #c82333 !important;
 }
 
-/* Маленькая кнопка */
-.btn-sm {
-    padding: 8px 16px;
-    font-size: 0.9rem;
-}
-
-/* Большая кнопка */
-.btn-lg {
-    padding: 16px 24px;
-    font-size: 1.1rem;
-}
-
-/* Кнопка с иконкой */
-.btn i {
-    font-size: 1em;
-}
-
-/* Кнопка в виде ссылки */
+/* Кнопка-ссылка */
 .btn-link {
-    background: transparent;
-    color: #007bff;
-    box-shadow: none;
-    padding: 8px 12px;
+    background: transparent !important;
+    color: #007bff !important;
+    box-shadow: none !important;
+    padding: 8px 12px !important;
 }
 
 .btn-link:hover:not(:disabled) {
-    background: rgba(0, 123, 255, 0.1);
-    transform: none;
+    background: rgba(0, 123, 255, 0.1) !important;
+    transform: none !important;
+}
+
+/* Маленькие кнопки */
+.btn-sm,
+.btn-change-room {
+    padding: 8px 16px !important;
+    font-size: 0.9rem !important;
+}
+
+/* Большие кнопки */
+.btn-lg {
+    padding: 16px 32px !important;
+    font-size: 1.1rem !important;
+}
+
+/* Кнопки с иконками */
+.btn i,
+.btn-primary i,
+.btn-secondary i,
+.btn-secondary1 i,
+.btn-success i,
+.btn-danger i,
+.btn-link i,
+.join-btn i,
+.btn-change-room i {
+    font-size: 1em !important;
 }

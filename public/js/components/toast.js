@@ -12,7 +12,15 @@ class ToastManager {
      * Инициализация контейнера для уведомлений
      */
     init() {
-        // Создаем контейнер если его нет
+        // Для страницы комнат используем специальный контейнер
+        const roomsContainer = document.getElementById('toast-notifications');
+        if (roomsContainer) {
+            this.container = roomsContainer;
+            this.container.className = 'toast-container';
+            return;
+        }
+
+        // Для других страниц используем стандартный подход
         if (!document.querySelector('.toast-container')) {
             this.container = document.createElement('div');
             this.container.className = 'toast-container';
@@ -39,12 +47,15 @@ class ToastManager {
             info: 'fas fa-info-circle'
         };
 
-        toast.innerHTML = `
-            <i class="toast-icon ${iconMap[type] || iconMap.info}"></i>
-            <div class="toast-message">${this.escapeHtml(message)}</div>
-            <button class="toast-close" onclick="this.parentElement.remove()">
+        toast.innerHTML = `            
+            <div class="toast-message">
+                <i class="toast-icon ${iconMap[type] || iconMap.info}"></i>
+                    ${this.escapeHtml(message)}
+                <button class="toast-close" onclick="this.parentElement.remove()">
                 <i class="fas fa-times"></i>
-            </button>
+                </button>
+            </div>
+            
         `;
 
         this.container.appendChild(toast);

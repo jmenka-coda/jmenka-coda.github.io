@@ -145,13 +145,14 @@
     color: #721c24;
 }
 
-/* Уведомления (toast) */
+/* Уведомления (toast) - стили для страниц без специального контейнера */
 .toast-container {
     position: fixed;
     top: 20px;
     right: 20px;
     z-index: 3000;
     pointer-events: none;
+    max-width: 400px;
 }
 
 .toast {
@@ -160,9 +161,11 @@
     padding: 15px 20px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
     margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 10px !important;
     min-width: 300px;
     max-width: 500px;
     opacity: 0;
@@ -194,6 +197,10 @@
 
 .toast-icon {
     font-size: 1.2rem;
+    flex-shrink: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
 .toast-success .toast-icon { color: #28a745; }
@@ -202,18 +209,24 @@
 .toast-info .toast-icon { color: #17a2b8; }
 
 .toast-message {
-    flex: 1;
+    flex: 1 !important;
     font-size: 0.9rem;
+    line-height: 1.4;
+    word-wrap: break-word;
 }
 
 .toast-close {
-    background: none;
-    border: none;
+    background: none !important;
+    border: none !important;
     color: #6c757d;
     cursor: pointer;
     padding: 5px;
     border-radius: 50%;
     transition: all 0.2s ease;
+    flex-shrink: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
 .toast-close:hover {

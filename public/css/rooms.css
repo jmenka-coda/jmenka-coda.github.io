@@ -3,6 +3,17 @@
 @import url('components/forms.css');
 @import url('components/cards.css');
 
+/* Контейнер для уведомлений */
+.toast-notifications-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 3000;
+    pointer-events: none;
+    max-width: 400px;
+    width: 100%;
+}
+
 /* Стили для секции пользователя */
 .user-section {
     padding: 30px;
@@ -38,8 +49,9 @@
 }
 
 .nickname-form button {
-    white-space: nowrap;
-    padding: 12px 20px;
+    white-space: nowrap !important;
+    padding: 12px 24px !important;
+    border-radius: 50px !important;
 }
 
 .current-user {
