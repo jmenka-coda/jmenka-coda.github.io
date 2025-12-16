@@ -40,18 +40,26 @@ canvas {
     top: 20px;
     left: 50%;
     transform: translateX(-50%);
-    height: 60px;
+    height: auto;
+    min-height: 60px;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 20px;
     background: white;
     border-radius: 15px;
-    padding: 0 25px;
+    padding: 10px 25px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
     border: 1px solid #e0e0e0;
     z-index: 1000;
-    min-width: 400px;
+    max-width: calc(100vw - 40px);
+    flex-wrap: wrap;
+    box-sizing: border-box;
+}
+
+/* Предотвращаем сжатие элементов панели */
+.toolBox > * {
+    flex-shrink: 0;
 }
 
 /* Стили для информации о комнате */
@@ -190,10 +198,17 @@ canvas {
 
 @media (max-width: 768px) {
     .toolBox {
-        height: 50px;
-        gap: 15px;
-        padding: 0 20px;
-        width: 100px;
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        transform: none;
+        max-width: none;
+        width: auto;
+        padding: 8px 15px;
+        gap: 10px;
+        min-height: 50px;
+        flex-wrap: wrap;
+        justify-content: space-between;
     }
 
     .icon-btn {
@@ -342,10 +357,10 @@ canvas {
 /* Адаптивность */
 @media (max-width: 768px) {
     .active-users {
-        width: 200px;
+        width: calc(50vw - 20px);
         right: 10px;
-        top: 10px;
-        max-height: 50vh;
+        top: 80px; /* Сдвигаем ниже панели инструментов */
+        max-height: calc(100vh - 100px);
     }
 
     .active-users h2 {
@@ -359,5 +374,34 @@ canvas {
 
     .user-name {
         font-size: 13px;
+    }
+}
+
+/* Дополнительные стили для средних экранов */
+@media (max-width: 1024px) {
+    .toolBox {
+        max-width: calc(100vw - 320px); /* Учитываем ширину панели пользователей */
+        left: calc(50% - 160px); /* Сдвигаем левее, чтобы не накладываться */
+    }
+}
+
+@media (max-width: 480px) {
+    .active-users {
+        width: calc(100vw - 20px);
+        right: 10px;
+        top: 80px;
+        left: 10px;
+        max-height: calc(100vh - 100px);
+    }
+
+    .toolBox {
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        transform: none;
+        max-width: none;
+        padding: 8px 15px;
+        gap: 8px;
+        flex-wrap: wrap;
     }
 }
