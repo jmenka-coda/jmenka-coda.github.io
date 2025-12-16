@@ -18,29 +18,29 @@ const { UserManager: DBUserManager, SessionManager } = require('../src/utils/dat
 async function showStats() {
     try {
         const stats = await DBUserManager.getStats();
-        console.log('📊 Статистика базы данных:');
-        console.log(`👥 Пользователей: ${stats.users}`);
-        console.log(`🔑 Активных сессий: ${stats.sessions}`);
-        console.log(`🏠 Комнат: ${stats.rooms}`);
-        console.log(`🔒 Приватных комнат: ${stats.privateRooms}`);
+        console.log('Статистика базы данных:');
+        console.log(`Пользователей: ${stats.users}`);
+        console.log(`Активных сессий: ${stats.sessions}`);
+        console.log(`Комнат: ${stats.rooms}`);
+        console.log(`Приватных комнат: ${stats.privateRooms}`);
     } catch (error) {
-        console.error('❌ Ошибка получения статистики:', error.message);
+        console.error('Ошибка получения статистики:', error.message);
     }
 }
 
 async function cleanup() {
     try {
-        console.log('🧹 Начинаем очистку...');
+        console.log('Начинаем очистку...');
 
         const sessionsCleaned = await SessionManager.cleanExpiredSessions();
-        console.log(`✅ Очищено ${sessionsCleaned} просроченных сессий`);
+        console.log(`Очищено ${sessionsCleaned} просроченных сессий`);
 
         const roomsCleaned = await DBUserManager.deleteOldRooms(5);
-        console.log(`✅ Очищено ${roomsCleaned} старых комнат (старше 5 минут)`);
+        console.log(`Очищено ${roomsCleaned} старых комнат (старше 5 минут)`);
 
-        console.log('🧹 Очистка завершена!');
+        console.log('Очистка завершена!');
     } catch (error) {
-        console.error('❌ Ошибка очистки:', error.message);
+        console.error('Ошибка очистки:', error.message);
     }
 }
 
@@ -51,12 +51,12 @@ async function reset() {
         output: process.stdout
     });
 
-    rl.question('⚠️  ВНИМАНИЕ: Это удалит ВСЕ данные! Продолжить? (yes/no): ', async (answer) => {
+    rl.question('ВНИМАНИЕ: Это удалит ВСЕ данные! Продолжить? (yes/no): ', async (answer) => {
         if (answer.toLowerCase() === 'yes') {
             try {
-                console.log('🗑️  Начинаем сброс базы данных...');
+                console.log('Начинаем сброс базы данных...');
 
-                await DBUserManager.deleteAllSessions();
+                await SessionManager.deleteAllSessions();
                 await DBUserManager.deleteAllRooms();
 
                 // Удаляем всех пользователей
@@ -68,12 +68,12 @@ async function reset() {
                     });
                 });
 
-                console.log('✅ Все данные удалены!');
+                console.log('Все данные удалены!');
             } catch (error) {
-                console.error('❌ Ошибка сброса:', error.message);
+                console.error('Ошибка сброса:', error.message);
             }
         } else {
-            console.log('❌ Сброс отменен');
+            console.log('Сброс отменен');
         }
         rl.close();
     });
@@ -81,7 +81,7 @@ async function reset() {
 
 function showHelp() {
     console.log(`
-🗄️  Управление SQLite базой данных
+Управление SQLite базой данных
 
 Использование: node scripts/database-manager.js [команда]
 
@@ -96,8 +96,7 @@ function showHelp() {
   node scripts/database-manager.js cleanup
   node scripts/database-manager.js reset
 
-📁 База данных: data/app.db
-⏰ Автоматическая очистка: каждые 5 минут
+База данных: data/app.db
 `);
 }
 
