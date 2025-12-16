@@ -137,9 +137,6 @@ function updateUsersList(users) {
                 <span class="user-name">${user.name}</span>
                 ${isCurrentUser ? '<span class="current-user-badge">(Вы)</span>' : ''}
             </div>
-            <div class="user-status">
-                <i class="fas fa-circle" style="color: #4CAF50;"></i>
-            </div>
         `;
         usersListElement.appendChild(userElement);
     });

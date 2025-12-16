@@ -4,6 +4,7 @@
 @import url('components/forms.css');
 @import url('components/layout.css');
 @import url('components/modal.css');
+@import url('components/toast.css');
 
 body {
     font-family: Arial, sans-serif;
@@ -59,16 +60,18 @@ canvas {
     align-items: center;
     justify-content: space-between;
     padding: 0 10px;
-    border-right: 1px solid #e0e0e0;
     margin-right: 10px;
     min-width: 200px;
 }
 
 #roomStatus {
-    font-size: 13px;
-    color: #666;
+    font-size: 18px;
+    color: #040404;
     font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap;
+    max-width: 200px;
 }
 
 .btn-change-room {
@@ -347,6 +350,11 @@ canvas {
 
     .active-users h2 {
         font-size: 14px;
+    }
+
+    #roomStatus {
+        max-width: 120px;
+        font-size: 16px;
     }
 
     .user-name {

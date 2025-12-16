@@ -35,52 +35,70 @@
 
 /* Стили для карточек комнат */
 .room-card {
-    border: 2px solid #e9ecef;
+    background: linear-gradient(135deg, #e8f5e8 0%, #f0f9f0 100%);
+    border: 2px solid #c8e6c8;
     cursor: pointer;
-    min-height: 140px;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    border-radius: 12px;
 }
 
 .room-card:hover {
-    border-color: #667eea;
+    border-color: #4caf50;
+    background: linear-gradient(135deg, #dcedd1 0%, #e8f5e8 100%);
 }
 
-.room-card .card-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-}
-
-.room-card .card-header h3 {
-    margin: 0;
-    font-size: 1.2rem;
-    font-weight: 700;
-}
-
-.room-card .card-body {
-    padding: 20px 24px;
-}
-
-.room-card .room-info {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 16px;
-}
-
-.room-card .room-info-item {
+.room-card .room-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2d3748;
+    flex: 1;
     display: flex;
     align-items: center;
     gap: 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.room-card .room-name .fa-lock {
+    color: #ffc107;
     font-size: 0.9rem;
+}
+
+.room-card .room-users {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9rem;
+    color: #4a5568;
+    margin-right: 20px;
+}
+
+.room-card .room-users i {
     color: #6c757d;
 }
 
-.room-card .room-info-item i {
-    width: 16px;
-    text-align: center;
+.room-card .join-btn {
+    padding: 8px 16px !important;
+    background: #28a745 !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 20px !important;
+    font-size: 0.85rem !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    white-space: nowrap !important;
 }
 
-.room-card .card-footer {
-    padding: 16px 24px;
+.room-card .join-btn:hover {
+    background: #218838 !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3) !important;
 }
 
 .room-card .join-btn {
@@ -130,8 +148,8 @@
 /* Стили для сетки карточек */
 .cards-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
+    grid-template-columns: 1fr;
+    gap: 12px;
     margin: 20px 0;
 }
 

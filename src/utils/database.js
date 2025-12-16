@@ -253,6 +253,23 @@ const RoomManager = {
         });
     },
 
+    // Update room activity timestamp
+    async updateRoomActivity(roomName) {
+        return new Promise((resolve, reject) => {
+            db.run(`
+                UPDATE rooms
+                SET last_activity = CURRENT_TIMESTAMP
+                WHERE name = ?
+            `, [roomName], function(err) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve({ changes: this.changes });
+                }
+            });
+        });
+    },
+
     // Get all rooms
     async getAllRooms() {
         return new Promise((resolve, reject) => {

@@ -2,6 +2,18 @@
 @import url('components/buttons.css');
 @import url('components/forms.css');
 @import url('components/cards.css');
+@import url('components/toast.css');
+
+/* Общие стили для всех input элементов */
+input[type="text"],
+input[type="password"] {
+    height: 48px;
+    padding: 12px 16px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
 
 /* Контейнер для уведомлений */
 .toast-notifications-container {
@@ -16,13 +28,13 @@
 
 /* Стили для секции пользователя */
 .user-section {
-    padding: 30px;
-    background: #f8f9fa;
+    padding: 30px 30px 30px 40px;
+    background: white;
     border-bottom: 1px solid #e9ecef;
 }
 
 .user-info h2 {
-    color: #495057;
+    color: #343a40;
     margin-bottom: 20px;
     font-size: 1.5rem;
 }
@@ -36,11 +48,6 @@
 
 .nickname-form input {
     flex: 1;
-    padding: 12px 16px;
-    border: 2px solid #e9ecef;
-    border-radius: 8px;
-    font-size: 1rem;
-    transition: border-color 0.3s ease;
 }
 
 .nickname-form input:focus {
@@ -83,7 +90,7 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     min-height: 100vh;
     display: flex;
     align-items: center;
@@ -93,18 +100,18 @@ body {
 
 .container {
     max-width: 900px;
-    width: 100%;
-    background: white;
+    width: 100%;    
     border-radius: 20px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
     overflow: hidden;
 }
 
 .header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #384543 0%;
     color: white;
-    padding: 40px 30px;
+    padding: 15px 30px;
     text-align: center;
+    border-bottom: 2px solid rgba(255, 71, 87, 0.1);
 }
 
 .header h1 {
@@ -138,14 +145,15 @@ body {
 }
 
 .create-room, .join-room {
-    background: #f8f9fa;
-    padding: 25px;
+    background: white;
+    padding: 25px 25px 25px 35px;
     border-radius: 15px;
     border: 2px solid #e9ecef;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
 .create-room h2, .join-room h2 {
-    color: #495057;
+    color: #343a40;
     margin-bottom: 20px;
     font-size: 1.3rem;
     display: flex;
@@ -155,25 +163,45 @@ body {
 
 .create-form, .join-form {
     display: flex;
+    flex-direction: column;
     gap: 15px;
     align-items: stretch;
 }
 
-.create-form {
-    flex-direction: column;
+.create-form button,
+.join-form button {
+    width: 100%;
+    display: flex !important;
+    justify-content: center !important;
 }
 
 .active-rooms {
-    padding: 30px;
-    background: #f8f9fa;
+    padding: 30px 30px 30px 40px;
+    background: white;
 }
 
 .active-rooms h2 {
-    color: #495057;
+    color: #343a40;
     margin-bottom: 20px;
     display: flex;
     align-items: center;
     gap: 10px;
+}
+
+.header-active-rooms {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.header-active-rooms h2 {
+    margin: 0;
+}
+
+.header-active-rooms #loadRoomsBtn {
+    padding: 6px 12px !important;
+    font-size: 0.85rem !important;
 }
 
 .rooms-grid {
@@ -205,10 +233,11 @@ body {
 }
 
 .footer {
-    background: #343a40;
-    color: white;
+    background: #f8f9fa;
+    color: #6c757d;
     text-align: center;
     padding: 20px 30px;
+    border-top: 1px solid #e9ecef;
 }
 
 .footer p {
@@ -247,7 +276,7 @@ body {
     gap: 8px;
     cursor: pointer;
     font-weight: 500;
-    color: #495057;
+    color: #343a40;
     margin-bottom: 10px;
 }
 
@@ -258,12 +287,7 @@ body {
 
 .password-section input[type="password"] {
     width: 100%;
-    padding: 12px 16px;
-    border: 2px solid #e9ecef;
-    border-radius: 8px;
-    font-size: 1rem;
     margin-top: 8px;
-    transition: border-color 0.3s ease;
 }
 
 .password-section input[type="password"]:focus {
@@ -273,6 +297,7 @@ body {
 
 /* Стили для приватных комнат */
 .private-room {
+    border: 2px solid #ffc107;
     border-left: 4px solid #ffc107;
     background: linear-gradient(135deg, rgba(255, 193, 7, 0.05) 0%, rgba(255, 193, 7, 0.02) 100%);
 }
@@ -285,6 +310,11 @@ body {
 
 .private-room .join-btn {
     background: linear-gradient(135deg, #ffc107 0%, #ff8c00 100%);
+}
+
+.private-room:hover {
+    border-color: #ff8c00;
+    background: linear-gradient(135deg, rgba(255, 140, 0, 0.08) 0%, rgba(255, 140, 0, 0.04) 100%);
 }
 
 .private-room .join-btn:hover {
@@ -308,12 +338,7 @@ body {
 
 .modal-input {
     width: 100%;
-    padding: 12px 16px;
-    border: 2px solid #e9ecef;
-    border-radius: 8px;
-    font-size: 1rem;
     margin-top: 10px;
-    transition: border-color 0.3s ease;
 }
 
 .modal-input:focus {
@@ -340,7 +365,6 @@ body {
     }
 
     .join-form {
-        flex-direction: column;
         gap: 10px;
     }
 

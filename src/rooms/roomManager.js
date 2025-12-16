@@ -122,6 +122,11 @@ function addStrokeToRoom(roomName, userId, strokeId, color, size, points) {
     const state = getRoomState(roomName);
     state.lastActivity = new Date();
 
+    // Обновляем активность в базе данных (асинхронно, не блокируем рисование)
+    updateRoomActivity(roomName).catch(error => {
+        logger.error(`Failed to update room activity for ${roomName}:`, error);
+    });
+
     // Ограничение на количество штрихов в комнате
     const maxStrokes = config.get('drawing.maxStrokesPerRoom') || 5000;
     if (state.strokes.length >= maxStrokes) {
@@ -286,9 +291,10 @@ function clearRoomState(roomName) {
 
 /**
  * Очищает неактивные комнаты
- * @param {number} maxAge - максимальный возраст комнаты в миллисекундах
+ * @param {number} inactiveTimeout - таймаут для неактивных комнат (без пользователей) в миллисекундах
+ * @param {number} activeTimeout - таймаут для активных комнат (с пользователями) в миллисекундах
  */
-async function cleanupInactiveRooms(maxAge = 5 * 60 * 1000) { // 5 минут
+async function cleanupInactiveRooms(inactiveTimeout = 30 * 1000, activeTimeout = 5 * 60 * 1000) { // неактивные: 30 сек, активные: 5 мин
     const now = new Date();
     let cleanedCount = 0;
 
@@ -300,8 +306,12 @@ async function cleanupInactiveRooms(maxAge = 5 * 60 * 1000) { // 5 минут
         for (const [roomName, state] of roomStates) {
             const age = now - state.lastActivity;
 
+            // Для комнат без пользователей используем меньший таймаут (неактивные комнаты)
+            // Для комнат с пользователями используем больший таймаут (активные комнаты)
+            const timeout = state.userCount > 0 ? activeTimeout : inactiveTimeout;
+
             // Не удаляем комнаты, которые есть в базе данных
-            if (!dbRoomNames.has(roomName) && state.userCount === 0 && age > maxAge) {
+            if (!dbRoomNames.has(roomName) && state.userCount === 0 && age > timeout) {
                 roomStates.delete(roomName);
                 cleanedCount++;
             }
@@ -311,7 +321,7 @@ async function cleanupInactiveRooms(maxAge = 5 * 60 * 1000) { // 5 минут
         // В случае ошибки очищаем только очень старые комнаты
         for (const [roomName, state] of roomStates) {
             const age = now - state.lastActivity;
-            if (state.userCount === 0 && age > maxAge * 2) {
+            if (state.userCount === 0 && age > inactiveTimeout * 2) {
                 roomStates.delete(roomName);
                 cleanedCount++;
             }
@@ -319,10 +329,22 @@ async function cleanupInactiveRooms(maxAge = 5 * 60 * 1000) { // 5 минут
     }
 
     if (cleanedCount > 0) {
-        logger.info(`Cleaned up ${cleanedCount} inactive rooms`);
+        logger.info(`Cleaned up ${cleanedCount} inactive rooms from memory`);
     }
 
     return cleanedCount;
+}
+
+/**
+ * Обновляет время последней активности комнаты в базе данных
+ * @param {string} roomName - название комнаты
+ */
+async function updateRoomActivity(roomName) {
+    try {
+        await DBRoomManager.updateRoomActivity(roomName);
+    } catch (error) {
+        logger.error(`Error updating room activity for ${roomName}:`, error);
+    }
 }
 
 /**
@@ -360,5 +382,6 @@ module.exports = {
     createRoom,
     verifyRoomPassword,
     getRoomInfo,
-    cleanupInactiveRooms
+    cleanupInactiveRooms,
+    updateRoomActivity
 };

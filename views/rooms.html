@@ -59,8 +59,15 @@
             <div class="join-room">
                 <h2>Присоединиться к комнате</h2>
                 <div class="join-form">
+                    
                     <input type="text" id="joinRoomName" placeholder="Название комнаты">
-                    <input type="password" id="joinRoomPassword" placeholder="Пароль (если комната приватная)" style="display: none;">
+                    <div class="password-section">
+                        <label for="newRoomPassword">
+                            <input type="checkbox" id="roomPrivateCheckboxJoin"> Приватная комната
+                        </label>
+                        <input type="password" id="joinRoomPassword" placeholder="Пароль" style="display: none;">
+                    </div>
+                    
                     <button id="joinRoomBtn" class="btn-secondary">
                         <i class="fas fa-sign-in-alt"></i> Присоединиться
                     </button>
@@ -69,10 +76,12 @@
         </div>
 
         <div class="active-rooms">
+            <div class="header-active-rooms">
             <h2><i class="fas fa-list"></i> Активные комнаты</h2>
             <button id="loadRoomsBtn" class="btn-secondary1">
                 <i class="fas fa-refresh"></i> Обновить
-            </button>
+                </button>
+            </div>
             <div id="roomsList" class="rooms-grid">
                 <div class="loading">
                     <i class="fas fa-spinner fa-spin"></i>

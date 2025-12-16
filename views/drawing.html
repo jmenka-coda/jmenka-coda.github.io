@@ -26,7 +26,15 @@
 <body>
     <div class="canvas-container">
         <div class="active-users">
-            <h2><i class="fas fa-list"></i> Пользователи комнаты</h2>
+            <h2> 
+                <i class='fa-solid fa-house'></i>  
+                <span id="roomStatus">Комната: загрузка...</span> 
+            </h2>
+            <div class="room-info">
+                <button type="button" onclick="goToRooms()" class="btn-change-room">
+                    <i class="fas fa-arrow-left"></i> Покинуть комнату
+                </button>
+            </div>
             <div id="usersList" class="users-grid">
                 <div class="loading">
                     <i class="fas fa-spinner fa-spin"></i>
@@ -38,12 +46,6 @@
         <canvas id="myCanvas"></canvas>
 
         <div class="toolBox">
-            <div class="room-info">
-                <span id="roomStatus">Комната: загрузка...</span>
-                <button type="button" onclick="goToRooms()" class="btn-change-room">
-                    <i class="fas fa-arrow-left"></i> Сменить комнату
-                </button>
-            </div>
             <div class="selectColor">
                 <!-- Для ЛКМ -->
                 <input type="color" id="colorPickerLMB" class="color-picker-lmb" onchange="changeColorL(this.value)"

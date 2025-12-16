@@ -23,7 +23,9 @@ async function startAutoCleanup() {
         try {
             const sessionsCleaned = await SessionManager.cleanExpiredSessions();
 
-            const roomsCleaned = await UserManager.deleteOldRooms(5);
+            // Используем таймаут для активных комнат (с пользователями) для удаления из БД
+            const activeRoomTimeoutMinutes = Math.ceil(config.get('rooms.activeRoomTimeout') / (1000 * 60));
+            const roomsCleaned = await UserManager.deleteOldRooms(activeRoomTimeoutMinutes);
 
             if (sessionsCleaned > 0 || roomsCleaned > 0) {
                 console.log(`Автоматическая очистка: ${sessionsCleaned} сессий, ${roomsCleaned} комнат`);
@@ -33,10 +35,12 @@ async function startAutoCleanup() {
         }
     }, 5 * 60 * 1000);
 
-    // очищаем комнаты
+    // очищаем комнаты из памяти
     setInterval(async () => {
         try {
-            const cleaned = await roomManager.cleanupInactiveRooms(30 * 1000);
+            const inactiveTimeout = config.get('rooms.inactiveRoomTimeout'); // 1 час для неактивных
+            const activeTimeout = config.get('rooms.activeRoomTimeout'); // 2 суток для активных
+            const cleaned = await roomManager.cleanupInactiveRooms(inactiveTimeout, activeTimeout);
             if (cleaned > 0) {
                 console.log(`Очищено ${cleaned} неактивных комнат из памяти`);
             }

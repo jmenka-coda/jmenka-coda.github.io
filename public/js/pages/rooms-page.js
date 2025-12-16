@@ -58,6 +58,13 @@ function initializeSocket() {
     socket.on('rooms list', (data) => {
         rooms = data.rooms || [];
         displayRooms(rooms);
+
+        // Восстанавливаем кнопку после загрузки
+        const loadBtn = document.getElementById('loadRoomsBtn');
+        if (loadBtn) {
+            loadBtn.disabled = false;
+            loadBtn.innerHTML = '<i class="fas fa-refresh"></i> Обновить';
+        }
     });
 
     socket.on('room created', (data) => {
@@ -98,6 +105,13 @@ function setupEventListeners() {
             passwordInput.value = '';
         }
     });
+    document.getElementById('roomPrivateCheckboxJoin').addEventListener('change', function(e) {
+        const passwordInput = document.getElementById('joinRoomPassword');
+        passwordInput.style.display = e.target.checked ? 'block' : 'none';
+        if (!e.target.checked) {
+            passwordInput.value = '';
+        }
+    });
 
     // Присоединение к комнате
     document.getElementById('joinRoomBtn').addEventListener('click', joinRoom);
@@ -122,6 +136,23 @@ function setupEventListeners() {
 
 // Загрузка списка комнат
 function loadRooms() {
+    const roomsGrid = document.getElementById('roomsList');
+    const loadBtn = document.getElementById('loadRoomsBtn');
+
+    // Показываем состояние загрузки
+    roomsGrid.innerHTML = `
+        <div class="loading">
+            <i class="fas fa-spinner fa-spin"></i>
+            Загрузка комнат...
+        </div>
+    `;
+
+    // Делаем кнопку неактивной
+    if (loadBtn) {
+        loadBtn.disabled = true;
+        loadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Загрузка...';
+    }
+
     if (socket && socket.connected) {
         socket.emit('get rooms');
     } else {
@@ -131,9 +162,20 @@ function loadRooms() {
             .then(data => {
                 rooms = data.rooms || [];
                 displayRooms(rooms);
+                // Восстанавливаем кнопку
+                if (loadBtn) {
+                    loadBtn.disabled = false;
+                    loadBtn.innerHTML = '<i class="fas fa-refresh"></i> Обновить';
+                }
             })
             .catch(error => {
                 console.error('Ошибка загрузки комнат через API:', error);
+                showError('Ошибка загрузки комнат');
+                // Восстанавливаем кнопку даже при ошибке
+                if (loadBtn) {
+                    loadBtn.disabled = false;
+                    loadBtn.innerHTML = '<i class="fas fa-refresh"></i> Обновить';
+                }
             });
     }
 }
@@ -327,14 +369,13 @@ function displayRooms(roomsList) {
 
     roomsGrid.innerHTML = roomsList.map(room => `
         <div class="room-card ${room.isPrivate ? 'private-room' : ''}" onclick="joinRoomFromCard('${room.name}')">
-            <div>
-                <h3>
-                    ${escapeHtml(room.name)}
-                    ${room.isPrivate ? '<i class="fas fa-lock" title="Приватная комната"></i>' : ''}
-                </h3>
-                <div class="room-info">
-                    <i class="fas fa-users"></i> ${room.userCount || 0} ${getUsersText(room.userCount || 0)}
-                </div>
+            <div class="room-name">
+                ${escapeHtml(room.name)}
+                ${room.isPrivate ? '<i class="fas fa-lock" title="Приватная комната"></i>' : ''}
+            </div>
+            <div class="room-users">
+                <i class="fas fa-users"></i>
+                <span>${room.userCount || 0} </span>
             </div>
             <button class="join-btn" onclick="joinRoomFromCard('${room.name}'); event.stopPropagation();">
                 <i class="fas fa-sign-in-alt"></i> Присоединиться
@@ -363,15 +404,6 @@ function joinRoomFromCard(roomName) {
     }
 
     joinRoom();
-}
-
-
-// Получение текста для количества пользователей
-function getUsersText(count) {
-    if (count === 0) return 'пользователей';
-    if (count === 1) return 'пользователь';
-    if (count < 5) return 'пользователя';
-    return 'пользователей';
 }
 
 // Показать ошибку
