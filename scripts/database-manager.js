@@ -1,17 +1,3 @@
-#!/usr/bin/env node
-
-/**
- * Скрипт для управления SQLite базой данных
- * Использование:
- * node scripts/database-manager.js [команда]
- *
- * Команды:
- * stats - показать статистику базы данных
- * cleanup - очистить просроченные сессии и старые комнаты
- * reset - удалить все данные (ОПАСНО!)
- * help - показать справку
- */
-
 const path = require('path');
 const { UserManager: DBUserManager, SessionManager } = require('../src/utils/database');
 

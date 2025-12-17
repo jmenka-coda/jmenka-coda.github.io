@@ -4,7 +4,6 @@ const remoteStrokes = new Map();
 let currentRoom = localStorage.getItem('drawingRoom') || 'default';
 let currentUser = null;
 
-// Функция для получения куки
 function getCookie(name) {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
@@ -13,7 +12,6 @@ function getCookie(name) {
 }
 
 function initializeSocketEvents() {
-    // Обработка аутентификации
     socket.on('authenticated', (data) => {
         currentUser = data.user;
         console.log('Пользователь аутентифицирован:', currentUser);
@@ -23,7 +21,6 @@ function initializeSocketEvents() {
         console.error('Ошибка аутентификации:', data.error);
     });
 
-    // Аутентифицируем пользователя при подключении
     const sessionId = getCookie('sessionId');
     if (sessionId) {
         socket.emit('authenticate', { sessionId });
@@ -54,12 +51,7 @@ function initializeSocketEvents() {
     });
 
     socket.on('draw end', (data) => {
-        // Штрих завершен, но путь остается на canvas
-        // Удаляем из Map только если это не наш собственный штрих
-        // (собственные штрихи уже нарисованы локально и не нужны в remoteStrokes)
         const key = `${data.userId}:${data.data.strokeId || ''}`;
-        // Не удаляем, чтобы штрих остался видимым для всех
-        // remoteStrokes.delete(key);
       });
 
     socket.on('clear canvas', () => {
@@ -98,7 +90,6 @@ function initializeSocketEvents() {
         if (status) {
             status.textContent = `Комната: ${room}`;
         }
-        // Запрашиваем состояние комнаты
         socket.emit('request room state', { room });
     });
 
@@ -116,7 +107,6 @@ function updateUsersList(users) {
     const usersListElement = document.getElementById('usersList');
     if (!usersListElement) return;
 
-    // Очищаем текущий список
     usersListElement.innerHTML = '';
 
     if (users.length === 0) {
@@ -124,7 +114,6 @@ function updateUsersList(users) {
         return;
     }
 
-    // Создаем элементы для каждого пользователя
     users.forEach(user => {
         const isCurrentUser = user.id === socket.id;
         const userElement = document.createElement('div');
@@ -143,7 +132,6 @@ function updateUsersList(users) {
 }
 
 function clearCanvas() {
-    // Очищаем все удаленные удаленные штрихи
     remoteStrokes.forEach(path => {
         if (path && path.remove) {
             path.remove();
@@ -151,7 +139,6 @@ function clearCanvas() {
     });
     remoteStrokes.clear();
 
-    // Очищаем все локальные пути на canvas
     if (typeof paper !== 'undefined' && paper.project) {
         paper.project.activeLayer.removeChildren();
     }
@@ -160,7 +147,6 @@ function clearCanvas() {
 function joinRoom(roomName, password = null) {
     const room = (roomName || 'default').trim() || 'default';
 
-    // Очищаем холст перед сменой комнаты
     if (currentRoom !== room) {
         clearCanvas();
     }
@@ -169,12 +155,10 @@ function joinRoom(roomName, password = null) {
     window.currentRoom = room;
     localStorage.setItem('drawingRoom', room);
 
-    // Сохраняем пароль для комнаты, если он предоставлен
     if (password !== null && password !== undefined) {
         localStorage.setItem(`roomPassword_${room}`, password);
     }
 
-    // Получаем session ID из cookies
     const sessionId = getCookie('sessionId');
 
     socket.emit('join room', {
@@ -191,7 +175,6 @@ function joinRoomFromUI() {
 }
 
 function createNewRoom() {
-    // Генерируем случайное имя комнаты
     const randomId = Math.random().toString(36).substring(2, 8);
     const roomName = `room-${randomId}`;
     
@@ -235,7 +218,6 @@ window.joinRoomFromUI = joinRoomFromUI;
 window.createNewRoom = createNewRoom;
 window.clearCanvas = clearCanvas;
 
-// Инициализация событий при загрузке
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initializeSocketEvents);
 } else {

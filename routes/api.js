@@ -1,18 +1,11 @@
-/**
- * API маршруты
- */
-
 const express = require('express');
 const router = express.Router();
 const roomManager = require('../src/rooms/roomManager');
 const userManager = require('../src/utils/userManager');
 
-/**
- * Получение списка активных комнат
- */
+
 router.get('/rooms', async (req, res) => {
     try {
-        // Используем специальную функцию для получения комнат из БД
         const rooms = await roomManager.getAllRoomsFromDB();
         res.json({ rooms });
     } catch (error) {
@@ -21,14 +14,10 @@ router.get('/rooms', async (req, res) => {
     }
 });
 
-/**
- * Получение информации о конкретной комнате
- */
 router.get('/rooms/:roomName', async (req, res) => {
     try {
         const { roomName } = req.params;
 
-        // Получаем информацию о комнате из базы данных
         const roomInfo = await roomManager.getRoomInfo(roomName);
 
         if (!roomInfo) {
@@ -39,7 +28,7 @@ router.get('/rooms/:roomName', async (req, res) => {
 
         res.json({
             name: roomName,
-            userCount: 0, // Без io сервера не можем узнать точное количество
+            userCount: 0,
             strokeCount: roomState.strokes.length,
             isPrivate: roomInfo.is_private,
             createdAt: roomInfo.created_at,
@@ -51,9 +40,7 @@ router.get('/rooms/:roomName', async (req, res) => {
     }
 });
 
-/**
- * Получение или создание пользователя
- */
+
 router.get('/user', async (req, res) => {
     try {
         const sessionId = req.cookies.sessionId;
@@ -62,9 +49,8 @@ router.get('/user', async (req, res) => {
 
         const user = await userManager.getOrCreateUser(sessionId, ipAddress, userAgent);
 
-        // Устанавливаем cookie с session ID
         res.cookie('sessionId', user.sessionId, {
-            maxAge: 30 * 24 * 60 * 60 * 1000, // 30 дней
+            maxAge: 30 * 24 * 60 * 60 * 1000,
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax'
@@ -80,9 +66,7 @@ router.get('/user', async (req, res) => {
     }
 });
 
-/**
- * Обновление никнейма пользователя
- */
+
 router.put('/user/nickname', async (req, res) => {
     try {
         const sessionId = req.cookies.sessionId;
@@ -106,9 +90,7 @@ router.put('/user/nickname', async (req, res) => {
     }
 });
 
-/**
- * Создание комнаты с опциональным паролем
- */
+
 router.post('/rooms', async (req, res) => {
     try {
         const { name, password } = req.body;
@@ -121,7 +103,6 @@ router.post('/rooms', async (req, res) => {
 
         const roomName = name.trim();
 
-        // Проверяем, не существует ли уже комната
         const existingRooms = await roomManager.getAllRoomsFromDB();
         if (existingRooms.some(room => room.name.toLowerCase() === roomName.toLowerCase())) {
             return res.status(400).json({ error: 'Комната с таким названием уже существует' });
@@ -129,11 +110,8 @@ router.post('/rooms', async (req, res) => {
 
         const result = await roomManager.createRoom(roomName, password, user ? user.id : null);
 
-        // Отправляем Socket.IO событие для обновления списка комнат у всех пользователей
         const io = req.app.get('io');
         if (io) {
-            // Отправляем событие о создании комнаты создателю
-            // Другие пользователи обновят список через периодическое обновление или ручное
             console.log(`Комната ${roomName} создана через REST API`);
         }
 
@@ -149,9 +127,6 @@ router.post('/rooms', async (req, res) => {
 });
 
 
-/**
- * Статистика сервера и базы данных
- */
 router.get('/stats', async (req, res) => {
     try {
         const activeUsers = userManager.getActiveUsers().length;
@@ -173,9 +148,6 @@ router.get('/stats', async (req, res) => {
     }
 });
 
-/**
- * Очистка базы данных (только для администраторов)
- */
 router.post('/admin/cleanup', async (req, res) => {
     try {
         const { cleanSessions, cleanOldRooms, cleanAllRooms } = req.body;
@@ -211,18 +183,13 @@ router.post('/admin/cleanup', async (req, res) => {
     }
 });
 
-/**
- * Удаление всех данных (ОПАСНО! Только для разработки)
- */
 router.delete('/admin/reset', async (req, res) => {
     try {
         const { UserManager: DBUserManager } = require('../src/utils/database');
 
-        // Удаляем все данные
         await DBUserManager.deleteAllSessions();
         await DBUserManager.deleteAllRooms();
 
-        // Также очищаем пользователей (осторожно!)
         const db = require('../src/utils/database').db;
         await new Promise((resolve, reject) => {
             db.run('DELETE FROM users', [], function(err) {

@@ -6,32 +6,22 @@ describe('Database Tests', () => {
   const testDbPath = path.join(__dirname, '../../data/test.db');
 
   beforeAll(async () => {
-    // Ensure test database directory exists
     const dataDir = path.dirname(testDbPath);
     if (!fs.existsSync(dataDir)) {
       fs.mkdirSync(dataDir, { recursive: true });
     }
 
-    // Remove test database if it exists
     if (fs.existsSync(testDbPath)) {
       fs.unlinkSync(testDbPath);
     }
 
-    // Override database path for testing
     process.env.DB_PATH = testDbPath;
   });
 
   afterAll(async () => {
-    // Clean up test database
     if (fs.existsSync(testDbPath)) {
       fs.unlinkSync(testDbPath);
     }
-  });
-
-  // Clean up database between tests
-  afterEach(async () => {
-    // Note: In a real scenario, you might want to truncate tables
-    // For now, we'll rely on unique IDs and test isolation
   });
 
   describe('UserManager', () => {
@@ -103,7 +93,6 @@ describe('Database Tests', () => {
     };
 
     beforeAll(async () => {
-      // Mock bcrypt for password verification tests
       const bcrypt = require('bcryptjs');
       jest.spyOn(bcrypt, 'compare').mockImplementation((password, hash) => {
         return Promise.resolve(password === 'test-password');
@@ -158,13 +147,12 @@ describe('Database Tests', () => {
     let testSession;
 
     beforeEach(() => {
-      // Create unique session for each test
       testSession = {
         sessionId: `test-session-${Date.now()}-${Math.random()}`,
         userId: 'test-user-123',
         ipAddress: '127.0.0.1',
         userAgent: 'TestAgent/1.0',
-        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours from now
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000)
       };
     });
 
@@ -202,9 +190,8 @@ describe('Database Tests', () => {
     });
 
     test('should clean expired sessions', async () => {
-      // Create an expired session with unique ID
       const expiredSessionId = `expired-session-${Date.now()}-${Math.random()}`;
-      const expiredDate = new Date(Date.now() - 60 * 60 * 1000); // 1 hour ago to ensure it's expired
+      const expiredDate = new Date(Date.now() - 60 * 60 * 1000);
 
       await SessionManager.createSession(
         expiredSessionId,
@@ -214,11 +201,9 @@ describe('Database Tests', () => {
         expiredDate
       );
 
-      // Give SQLite some time to process
       await new Promise(resolve => setTimeout(resolve, 50));
 
       const cleanedCount = await SessionManager.cleanExpiredSessions();
-      // The test might be flaky due to timing, so we'll just check that the function runs
       expect(typeof cleanedCount).toBe('number');
     });
   });
